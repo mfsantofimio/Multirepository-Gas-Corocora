@@ -1,0 +1,101 @@
+{
+  "components": [
+    {
+      "text": "# Ejecutar obra de acometida e instalación interna",
+      "type": "text",
+      "layout": {
+        "row": "Row_formEjecutarObra_01",
+        "columns": null
+      },
+      "id": "Field_formEjecutarObra_01"
+    },
+    {
+      "label": "Número de solicitud",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formEjecutarObra_02",
+        "columns": null
+      },
+      "id": "Field_formEjecutarObra_02",
+      "key": "numeroSolicitud",
+      "disabled": true
+    },
+    {
+      "label": "Dirección del predio",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formEjecutarObra_03",
+        "columns": null
+      },
+      "id": "Field_formEjecutarObra_03",
+      "key": "direccionPredio",
+      "disabled": true
+    },
+    {
+      "label": "Diámetro de tubería",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formEjecutarObra_04",
+        "columns": null
+      },
+      "id": "Field_formEjecutarObra_04",
+      "key": "diametroTuberia",
+      "disabled": true
+    },
+    {
+      "label": "Material",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formEjecutarObra_05",
+        "columns": null
+      },
+      "id": "Field_formEjecutarObra_05",
+      "key": "materialTuberia",
+      "disabled": true
+    },
+    {
+      "label": "Longitud de la acometida (m)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formEjecutarObra_06",
+        "columns": null
+      },
+      "id": "Field_formEjecutarObra_06",
+      "key": "longitudAcometidaMetros",
+      "disabled": true
+    },
+    {
+      "label": "La obra fue terminada",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_formEjecutarObra_07",
+        "columns": null
+      },
+      "id": "Field_formEjecutarObra_07",
+      "key": "obraTerminada",
+      "defaultValue": false,
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Observaciones de obra",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formEjecutarObra_08",
+        "columns": null
+      },
+      "id": "Field_formEjecutarObra_08",
+      "key": "observacionesObra"
+    }
+  ],
+  "type": "default",
+  "id": "formEjecutarObra",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

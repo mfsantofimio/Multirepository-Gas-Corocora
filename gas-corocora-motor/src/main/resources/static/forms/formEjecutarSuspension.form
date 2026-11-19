@@ -1,0 +1,87 @@
+{
+  "components": [
+    {
+      "text": "# Ejecutar suspensión del servicio\nOrden generada por mora en el pago de la factura.",
+      "type": "text",
+      "layout": {
+        "row": "Row_formEjecutarSuspension_01",
+        "columns": null
+      },
+      "id": "Field_formEjecutarSuspension_01"
+    },
+    {
+      "label": "Orden de suspensión",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formEjecutarSuspension_02",
+        "columns": null
+      },
+      "id": "Field_formEjecutarSuspension_02",
+      "key": "numeroOrdenSuspension",
+      "disabled": true
+    },
+    {
+      "label": "Número de cuenta",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formEjecutarSuspension_03",
+        "columns": null
+      },
+      "id": "Field_formEjecutarSuspension_03",
+      "key": "numeroCuenta",
+      "disabled": true
+    },
+    {
+      "label": "Suscriptor",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formEjecutarSuspension_04",
+        "columns": null
+      },
+      "id": "Field_formEjecutarSuspension_04",
+      "key": "nombreUsuario",
+      "disabled": true
+    },
+    {
+      "label": "Valor adeudado (COP)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formEjecutarSuspension_05",
+        "columns": null
+      },
+      "id": "Field_formEjecutarSuspension_05",
+      "key": "totalPagar",
+      "disabled": true
+    },
+    {
+      "label": "La suspensión fue ejecutada en el predio",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_formEjecutarSuspension_06",
+        "columns": null
+      },
+      "id": "Field_formEjecutarSuspension_06",
+      "key": "suspensionEjecutada",
+      "defaultValue": false
+    },
+    {
+      "label": "Observaciones (p. ej. predio cerrado)",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formEjecutarSuspension_07",
+        "columns": null
+      },
+      "id": "Field_formEjecutarSuspension_07",
+      "key": "observacionSuspension"
+    }
+  ],
+  "type": "default",
+  "id": "formEjecutarSuspension",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

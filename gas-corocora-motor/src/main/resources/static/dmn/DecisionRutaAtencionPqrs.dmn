@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:camunda="http://camunda.org/schema/1.0/dmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_RutaAtencionPqrs" name="Ruta de atención PQRS" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.28.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.21.0">
+  <decision id="Decision_RutaAtencionPqrs" name="Clasificar ruta de atención de la PQRS" camunda:historyTimeToLive="180">
+    <description>Define si la PQRS se responde en primer contacto (agente) o requiere análisis técnico (analista). Hit policy FIRST: la última regla actúa como valor por defecto.</description>
+    <decisionTable id="DecisionTable_RutaAtencionPqrs" hitPolicy="FIRST">
+      <input id="Input_TipoSolicitud" label="Tipo de solicitud" camunda:inputVariable="tipoSolicitud">
+        <inputExpression id="InputExpression_TipoSolicitud" typeRef="string">
+          <text>tipoSolicitud</text>
+        </inputExpression>
+        <inputValues id="UnaryTests_TipoSolicitud">
+          <text>"PETICION","QUEJA","RECLAMO","SUGERENCIA"</text>
+        </inputValues>
+      </input>
+      <input id="Input_ValorReclamado" label="Valor reclamado (COP)" camunda:inputVariable="valorReclamado">
+        <inputExpression id="InputExpression_ValorReclamado" typeRef="double">
+          <text>valorReclamado</text>
+        </inputExpression>
+      </input>
+      <output id="Output_RutaAtencion" label="Ruta de atención" name="rutaAtencion" typeRef="string">
+        <outputValues id="UnaryTests_RutaAtencion">
+          <text>"RESPUESTA_INMEDIATA","ANALISIS_TECNICO"</text>
+        </outputValues>
+      </output>
+      <rule id="Rule_Sugerencia">
+        <description>Las sugerencias se atienden en primer contacto</description>
+        <inputEntry id="UnaryTests_R1_Tipo"><text>"SUGERENCIA"</text></inputEntry>
+        <inputEntry id="UnaryTests_R1_Valor"><text></text></inputEntry>
+        <outputEntry id="LiteralExpression_R1"><text>"RESPUESTA_INMEDIATA"</text></outputEntry>
+      </rule>
+      <rule id="Rule_Peticion">
+        <description>Peticiones (duplicados, certificados, novedades simples)</description>
+        <inputEntry id="UnaryTests_R2_Tipo"><text>"PETICION"</text></inputEntry>
+        <inputEntry id="UnaryTests_R2_Valor"><text></text></inputEntry>
+        <outputEntry id="LiteralExpression_R2"><text>"RESPUESTA_INMEDIATA"</text></outputEntry>
+      </rule>
+      <rule id="Rule_ReclamoMenor">
+        <description>Reclamos de bajo valor: el agente puede resolverlos</description>
+        <inputEntry id="UnaryTests_R3_Tipo"><text>"RECLAMO"</text></inputEntry>
+        <inputEntry id="UnaryTests_R3_Valor"><text>&lt;= 50000</text></inputEntry>
+        <outputEntry id="LiteralExpression_R3"><text>"RESPUESTA_INMEDIATA"</text></outputEntry>
+      </rule>
+      <rule id="Rule_ReclamoMayor">
+        <description>Reclamos de alto valor requieren revisión de lectura y facturación</description>
+        <inputEntry id="UnaryTests_R4_Tipo"><text>"RECLAMO"</text></inputEntry>
+        <inputEntry id="UnaryTests_R4_Valor"><text>&gt; 50000</text></inputEntry>
+        <outputEntry id="LiteralExpression_R4"><text>"ANALISIS_TECNICO"</text></outputEntry>
+      </rule>
+      <rule id="Rule_PorDefecto">
+        <description>Quejas y cualquier otro caso: análisis técnico</description>
+        <inputEntry id="UnaryTests_R5_Tipo"><text></text></inputEntry>
+        <inputEntry id="UnaryTests_R5_Valor"><text></text></inputEntry>
+        <outputEntry id="LiteralExpression_R5"><text>"ANALISIS_TECNICO"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_RutaAtencionPqrs">
+      <dmndi:DMNShape id="DMNShape_RutaAtencionPqrs" dmnElementRef="Decision_RutaAtencionPqrs">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

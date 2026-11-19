@@ -1,0 +1,133 @@
+{
+  "components": [
+    {
+      "text": "# Iniciar ciclo de facturación\nDatos de la cuenta a facturar en el ciclo mensual.",
+      "type": "text",
+      "layout": {
+        "row": "Row_formIniciarCicloFacturacion_01",
+        "columns": null
+      },
+      "id": "Field_formIniciarCicloFacturacion_01"
+    },
+    {
+      "label": "Número de cuenta (contrato)",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formIniciarCicloFacturacion_02",
+        "columns": null
+      },
+      "id": "Field_formIniciarCicloFacturacion_02",
+      "key": "numeroCuenta",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Nombre del suscriptor",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formIniciarCicloFacturacion_03",
+        "columns": null
+      },
+      "id": "Field_formIniciarCicloFacturacion_03",
+      "key": "nombreUsuario",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Correo electrónico",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formIniciarCicloFacturacion_04",
+        "columns": null
+      },
+      "id": "Field_formIniciarCicloFacturacion_04",
+      "key": "emailUsuario",
+      "validate": {
+        "required": true,
+        "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+      }
+    },
+    {
+      "label": "Tipo de usuario",
+      "type": "select",
+      "layout": {
+        "row": "Row_formIniciarCicloFacturacion_05",
+        "columns": null
+      },
+      "id": "Field_formIniciarCicloFacturacion_05",
+      "key": "tipoUsuario",
+      "values": [
+        {
+          "label": "Residencial",
+          "value": "RESIDENCIAL"
+        },
+        {
+          "label": "Comercial",
+          "value": "COMERCIAL"
+        },
+        {
+          "label": "Industrial",
+          "value": "INDUSTRIAL"
+        }
+      ],
+      "validate": {
+        "required": true
+      },
+      "defaultValue": "RESIDENCIAL"
+    },
+    {
+      "label": "Estrato socioeconómico",
+      "type": "number",
+      "layout": {
+        "row": "Row_formIniciarCicloFacturacion_06",
+        "columns": null
+      },
+      "id": "Field_formIniciarCicloFacturacion_06",
+      "key": "estrato",
+      "validate": {
+        "required": true,
+        "min": 1,
+        "max": 6
+      }
+    },
+    {
+      "label": "Consumo promedio últimos 6 meses (m³)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formIniciarCicloFacturacion_07",
+        "columns": null
+      },
+      "id": "Field_formIniciarCicloFacturacion_07",
+      "key": "consumoPromedioM3",
+      "validate": {
+        "required": true,
+        "min": 0
+      }
+    },
+    {
+      "label": "Lectura anterior del medidor (m³)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formIniciarCicloFacturacion_08",
+        "columns": null
+      },
+      "id": "Field_formIniciarCicloFacturacion_08",
+      "key": "lecturaAnterior",
+      "validate": {
+        "required": true,
+        "min": 0
+      }
+    }
+  ],
+  "type": "default",
+  "id": "formIniciarCicloFacturacion",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

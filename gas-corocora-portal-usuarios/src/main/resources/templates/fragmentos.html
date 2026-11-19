@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="cabeza(titulo)">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${titulo} + ' · Portal de usuarios Gas Corocora'">Portal de usuarios</title>
+  <link rel="stylesheet" th:href="@{/css/portal.css}">
+</head>
+<body>
+
+<div th:fragment="barra(activo)">
+  <div class="barra">
+    <div class="contenido">
+      <a class="marca" th:href="@{/}">
+        <span class="llama">GC</span>
+        <span><strong>Gas Corocora S.A. E.S.P.</strong><small>Portal de usuarios · Villavicencio y el Meta</small></span>
+      </a>
+      <div class="sesion" th:if="${usuario != null}">
+        <span th:text="${usuario.nombre}">Usuario</span>
+        <form th:action="@{/salir}" method="post"><button class="btn peq claro" type="submit">Salir</button></form>
+      </div>
+    </div>
+  </div>
+  <nav class="menu" th:if="${usuario != null}">
+    <div class="contenido">
+      <a th:href="@{/panel}" th:classappend="${activo == 'panel'} ? 'activo'">Mis trámites</a>
+      <a th:href="@{/conexion/nueva}" th:classappend="${activo == 'conexion'} ? 'activo'">Solicitar conexión</a>
+      <a th:href="@{/pqrs/nueva}" th:classappend="${activo == 'pqrs'} ? 'activo'">Radicar PQRS</a>
+    </div>
+  </nav>
+</div>
+
+<div th:fragment="avisos">
+  <div class="aviso ok" th:if="${exito != null}" th:text="${exito}">Éxito</div>
+  <div class="aviso error" th:if="${error != null}" th:text="${error}">Error</div>
+</div>
+
+<footer th:fragment="pie">Gas Corocora S.A. E.S.P. — empresa ficticia del proyecto académico de Software Basado en Procesos de Negocio</footer>
+
+</body>
+</html>

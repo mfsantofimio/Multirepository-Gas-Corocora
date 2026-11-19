@@ -1,0 +1,14 @@
+{
+  "name": "gas-corocora-recaudo",
+  "version": "1.0.0",
+  "description": "Servicio de Recaudo / Tesoreria de Gas Corocora: obligaciones de pago, pagos y notas credito, integrado con el motor Camunda",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.js",
+    "test": "node --disable-warning=ExperimentalWarning --test test/integracion.test.js",
+    "reset-db": "node -e \"require('fs').rmSync('data',{recursive:true,force:true});console.log('Base de datos borrada; se recrea al iniciar')\""
+  }
+}

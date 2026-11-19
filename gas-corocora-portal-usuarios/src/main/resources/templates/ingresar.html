@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Ingresar')}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('')}"></div>
+<main>
+  <div class="tarjeta estrecha">
+    <div class="cab"><h2>Ingrese a su cuenta</h2></div>
+    <div class="cuerpo">
+      <div th:replace="~{fragmentos :: avisos}"></div>
+      <form class="campos" th:action="@{/ingresar}" th:object="${form}" method="post" novalidate>
+        <div class="campo" th:classappend="${#fields.hasErrors('documento')} ? 'invalido'">
+          <label for="documento">Número de documento</label>
+          <input type="text" id="documento" th:field="*{documento}" inputmode="numeric" required autofocus>
+          <div class="err" th:if="${#fields.hasErrors('documento')}" th:errors="*{documento}"></div>
+        </div>
+        <div class="campo" th:classappend="${#fields.hasErrors('clave')} ? 'invalido'">
+          <label for="clave">Clave</label>
+          <input type="password" id="clave" th:field="*{clave}" required>
+          <div class="err" th:if="${#fields.hasErrors('clave')}" th:errors="*{clave}"></div>
+        </div>
+        <div class="acciones">
+          <button class="btn" type="submit">Ingresar</button>
+          <a class="btn sec" th:href="@{/registro}">Crear una cuenta</a>
+        </div>
+      </form>
+      <p class="pendiente" style="margin-top:16px">Usuarios de demostración: <b>1122334455</b>, <b>2233445566</b> o <b>3344556677</b> con la clave <b>demo123</b>.</p>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

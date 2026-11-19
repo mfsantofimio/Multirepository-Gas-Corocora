@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Error')}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('')}"></div>
+<main>
+  <div class="tarjeta estrecha">
+    <div class="cab"><h2>Algo salió mal</h2></div>
+    <div class="cuerpo">
+      <p th:text="${status != null ? 'Código ' + status : 'Error inesperado'}">Código</p>
+      <p class="pendiente" th:text="${message}">mensaje</p>
+      <a class="btn" th:href="@{/}">Volver al inicio</a>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

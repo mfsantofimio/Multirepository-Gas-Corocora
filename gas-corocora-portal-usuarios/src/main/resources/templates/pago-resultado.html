@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Pago registrado')}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('panel')}"></div>
+<main>
+  <div class="tarjeta media">
+    <div class="cab"><h2>Pago registrado</h2><span class="chip ok" th:text="${resultado.comprobante}">CP</span></div>
+    <div class="cuerpo">
+      <div class="aviso ok" th:if="${resultado.notificacionMotor.entregada}">
+        Su pago fue aplicado y el proceso de facturación ya lo registró.
+        <span th:text="${resultado.obligacion.saldo == 0} ? 'La factura queda al día.' : 'Queda un saldo pendiente.'"></span>
+      </div>
+      <div class="aviso error" th:unless="${resultado.notificacionMotor.entregada}">
+        Su pago quedó registrado en Recaudo, pero el proceso de facturación no lo confirmó:
+        <span th:text="${resultado.notificacionMotor.detalle}">detalle</span>
+      </div>
+      <div class="rejilla">
+        <div class="dato">Comprobante<b th:text="${resultado.comprobante}">CP</b></div>
+        <div class="dato">Referencia<b th:text="${resultado.obligacion.referenciaPago}">RP</b></div>
+        <div class="dato">Valor pagado<b th:text="${fmt.cop(resultado.pago.valor)}">$</b></div>
+        <div class="dato">Medio<b th:text="${resultado.pago.medioPago}">PSE</b></div>
+        <div class="dato">Saldo restante<b th:text="${fmt.cop(resultado.obligacion.saldo)}">$0</b></div>
+        <div class="dato">Estado en Recaudo<b th:text="${resultado.obligacion.estado}">PAGADA</b></div>
+      </div>
+      <div class="acciones" style="margin-top:16px"><a class="btn" th:href="@{/panel}">Volver a mis trámites</a></div>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

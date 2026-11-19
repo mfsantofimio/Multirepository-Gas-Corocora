@@ -1,0 +1,142 @@
+{
+  "components": [
+    {
+      "text": "# Revisar liquidación de la factura",
+      "type": "text",
+      "layout": {
+        "row": "Row_formRevisarLiquidacion_01",
+        "columns": null
+      },
+      "id": "Field_formRevisarLiquidacion_01"
+    },
+    {
+      "label": "Número de factura",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRevisarLiquidacion_02",
+        "columns": null
+      },
+      "id": "Field_formRevisarLiquidacion_02",
+      "key": "numeroFactura",
+      "disabled": true
+    },
+    {
+      "label": "Número de cuenta",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRevisarLiquidacion_03",
+        "columns": null
+      },
+      "id": "Field_formRevisarLiquidacion_03",
+      "key": "numeroCuenta",
+      "disabled": true
+    },
+    {
+      "label": "Suscriptor",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRevisarLiquidacion_04",
+        "columns": null
+      },
+      "id": "Field_formRevisarLiquidacion_04",
+      "key": "nombreUsuario",
+      "disabled": true
+    },
+    {
+      "label": "Consumo facturado (m³)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formRevisarLiquidacion_05",
+        "columns": null
+      },
+      "id": "Field_formRevisarLiquidacion_05",
+      "key": "consumoM3",
+      "disabled": true
+    },
+    {
+      "label": "Valor del consumo (COP)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formRevisarLiquidacion_06",
+        "columns": null
+      },
+      "id": "Field_formRevisarLiquidacion_06",
+      "key": "valorConsumo",
+      "disabled": true
+    },
+    {
+      "label": "Subsidio (-) / contribución (+) (%)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formRevisarLiquidacion_07",
+        "columns": null
+      },
+      "id": "Field_formRevisarLiquidacion_07",
+      "key": "porcentajeAjuste",
+      "disabled": true
+    },
+    {
+      "label": "Valor del ajuste (COP)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formRevisarLiquidacion_08",
+        "columns": null
+      },
+      "id": "Field_formRevisarLiquidacion_08",
+      "key": "valorAjuste",
+      "disabled": true
+    },
+    {
+      "label": "Cargo fijo (COP)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formRevisarLiquidacion_09",
+        "columns": null
+      },
+      "id": "Field_formRevisarLiquidacion_09",
+      "key": "cargoFijo",
+      "disabled": true
+    },
+    {
+      "label": "Total a pagar (COP)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formRevisarLiquidacion_10",
+        "columns": null
+      },
+      "id": "Field_formRevisarLiquidacion_10",
+      "key": "totalPagar",
+      "disabled": true
+    },
+    {
+      "label": "Fecha límite de pago",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRevisarLiquidacion_11",
+        "columns": null
+      },
+      "id": "Field_formRevisarLiquidacion_11",
+      "key": "fechaLimitePago",
+      "disabled": true
+    },
+    {
+      "label": "Observaciones del analista",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formRevisarLiquidacion_12",
+        "columns": null
+      },
+      "id": "Field_formRevisarLiquidacion_12",
+      "key": "observacionAnalista"
+    }
+  ],
+  "type": "default",
+  "id": "formRevisarLiquidacion",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

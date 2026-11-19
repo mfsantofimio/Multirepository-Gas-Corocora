@@ -1,0 +1,107 @@
+{
+  "components": [
+    {
+      "text": "# Verificar lectura en terreno\nLa desviación frente al promedio supera el 30 % o el consumo es negativo.",
+      "type": "text",
+      "layout": {
+        "row": "Row_formVerificarLectura_01",
+        "columns": null
+      },
+      "id": "Field_formVerificarLectura_01"
+    },
+    {
+      "label": "Número de cuenta",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formVerificarLectura_02",
+        "columns": null
+      },
+      "id": "Field_formVerificarLectura_02",
+      "key": "numeroCuenta",
+      "disabled": true
+    },
+    {
+      "label": "Lectura anterior (m³)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formVerificarLectura_03",
+        "columns": null
+      },
+      "id": "Field_formVerificarLectura_03",
+      "key": "lecturaAnterior",
+      "disabled": true
+    },
+    {
+      "label": "Consumo calculado (m³)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formVerificarLectura_04",
+        "columns": null
+      },
+      "id": "Field_formVerificarLectura_04",
+      "key": "consumoM3",
+      "disabled": true
+    },
+    {
+      "label": "Desviación frente al promedio (%)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formVerificarLectura_05",
+        "columns": null
+      },
+      "id": "Field_formVerificarLectura_05",
+      "key": "desviacionPorcentaje",
+      "disabled": true
+    },
+    {
+      "label": "Lectura actual verificada (m³)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formVerificarLectura_06",
+        "columns": null
+      },
+      "id": "Field_formVerificarLectura_06",
+      "key": "lecturaActual",
+      "validate": {
+        "required": true,
+        "min": 0
+      }
+    },
+    {
+      "label": "Confirmo que la lectura fue verificada en terreno",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_formVerificarLectura_07",
+        "columns": null
+      },
+      "id": "Field_formVerificarLectura_07",
+      "key": "lecturaVerificada",
+      "defaultValue": false,
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Resultado de la verificación",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formVerificarLectura_08",
+        "columns": null
+      },
+      "id": "Field_formVerificarLectura_08",
+      "key": "observacionVerificacion",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "formVerificarLectura",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

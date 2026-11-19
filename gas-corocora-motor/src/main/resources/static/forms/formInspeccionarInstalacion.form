@@ -1,0 +1,87 @@
+{
+  "components": [
+    {
+      "text": "# Inspección de la instalación (NTC 2505)",
+      "type": "text",
+      "layout": {
+        "row": "Row_formInspeccionarInstalacion_01",
+        "columns": null
+      },
+      "id": "Field_formInspeccionarInstalacion_01"
+    },
+    {
+      "label": "Número de solicitud",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formInspeccionarInstalacion_02",
+        "columns": null
+      },
+      "id": "Field_formInspeccionarInstalacion_02",
+      "key": "numeroSolicitud",
+      "disabled": true
+    },
+    {
+      "label": "Dirección del predio",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formInspeccionarInstalacion_03",
+        "columns": null
+      },
+      "id": "Field_formInspeccionarInstalacion_03",
+      "key": "direccionPredio",
+      "disabled": true
+    },
+    {
+      "label": "Observaciones del contratista",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formInspeccionarInstalacion_04",
+        "columns": null
+      },
+      "id": "Field_formInspeccionarInstalacion_04",
+      "key": "observacionesObra",
+      "disabled": true
+    },
+    {
+      "label": "Prueba de hermeticidad aprobada",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_formInspeccionarInstalacion_05",
+        "columns": null
+      },
+      "id": "Field_formInspeccionarInstalacion_05",
+      "key": "pruebaHermeticidadOk",
+      "defaultValue": false
+    },
+    {
+      "label": "La instalación es conforme",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_formInspeccionarInstalacion_06",
+        "columns": null
+      },
+      "id": "Field_formInspeccionarInstalacion_06",
+      "key": "instalacionConforme",
+      "defaultValue": false
+    },
+    {
+      "label": "Observaciones de la inspección",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formInspeccionarInstalacion_07",
+        "columns": null
+      },
+      "id": "Field_formInspeccionarInstalacion_07",
+      "key": "observacionesInspeccion"
+    }
+  ],
+  "type": "default",
+  "id": "formInspeccionarInstalacion",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

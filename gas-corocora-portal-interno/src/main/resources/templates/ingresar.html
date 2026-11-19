@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Ingresar')}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('')}"></div>
+<main>
+  <div class="tarjeta estrecha">
+    <div class="cab"><h2>Ingreso de funcionarios</h2></div>
+    <div class="cuerpo">
+      <div th:replace="~{fragmentos :: avisos}"></div>
+      <form class="campos" th:action="@{/ingresar}" method="post">
+        <div class="campo">
+          <label for="usuario">Usuario</label>
+          <input type="text" id="usuario" name="usuario" th:value="${usuarioDigitado}" required autofocus>
+        </div>
+        <div class="campo">
+          <label for="clave">Contraseña</label>
+          <input type="password" id="clave" name="clave" required>
+        </div>
+        <button class="btn" type="submit">Ingresar</button>
+      </form>
+      <div class="aviso info" style="margin-top:16px">
+        Usuarios de prueba (contraseña <b>demo</b>): asesor, ingeniero, contratista, inspector, lector,
+        facturador, tecnico, agente, analista, jefe. El usuario <b>demo</b> pertenece a todos los roles.
+      </div>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

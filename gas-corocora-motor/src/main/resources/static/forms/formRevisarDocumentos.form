@@ -1,0 +1,87 @@
+{
+  "components": [
+    {
+      "text": "# Revisar documentos del predio\nCertificado de tradición, documento del propietario y recibo predial.",
+      "type": "text",
+      "layout": {
+        "row": "Row_formRevisarDocumentos_01",
+        "columns": null
+      },
+      "id": "Field_formRevisarDocumentos_01"
+    },
+    {
+      "label": "Número de solicitud",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRevisarDocumentos_02",
+        "columns": null
+      },
+      "id": "Field_formRevisarDocumentos_02",
+      "key": "numeroSolicitud",
+      "disabled": true
+    },
+    {
+      "label": "Solicitante",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRevisarDocumentos_03",
+        "columns": null
+      },
+      "id": "Field_formRevisarDocumentos_03",
+      "key": "nombreSolicitante",
+      "disabled": true
+    },
+    {
+      "label": "Dirección del predio",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRevisarDocumentos_04",
+        "columns": null
+      },
+      "id": "Field_formRevisarDocumentos_04",
+      "key": "direccionPredio",
+      "disabled": true
+    },
+    {
+      "label": "Municipio",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRevisarDocumentos_05",
+        "columns": null
+      },
+      "id": "Field_formRevisarDocumentos_05",
+      "key": "municipio",
+      "disabled": true
+    },
+    {
+      "label": "Los documentos están completos y son válidos",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_formRevisarDocumentos_06",
+        "columns": null
+      },
+      "id": "Field_formRevisarDocumentos_06",
+      "key": "documentosCompletos",
+      "defaultValue": false
+    },
+    {
+      "label": "Observaciones",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formRevisarDocumentos_07",
+        "columns": null
+      },
+      "id": "Field_formRevisarDocumentos_07",
+      "key": "observacionesDocumentos"
+    }
+  ],
+  "type": "default",
+  "id": "formRevisarDocumentos",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

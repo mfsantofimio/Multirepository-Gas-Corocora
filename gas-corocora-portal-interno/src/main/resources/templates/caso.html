@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza(${caso.referencia})}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('casos')}"></div>
+<main>
+  <h1><span th:text="${caso.tipo}">TIPO</span> · <span th:text="${caso.referencia}">REF</span></h1>
+  <p class="sub">Proceso: <span th:class="${fmt.claseEstado(caso.registro.estadoProceso)}" th:text="${fmt.estado(caso.registro.estadoProceso)}">En curso</span>
+    · Trámite: <span th:class="${fmt.claseEstado(caso.registro.estado)}" th:text="${fmt.estado(caso.registro.estado)}">estado</span>
+    · Instancia <code th:text="${caso.registro.processInstanceId}">pi</code></p>
+  <div th:replace="~{fragmentos :: avisos}"></div>
+  <div class="columnas">
+    <div class="tarjeta">
+      <div class="cab"><h2>Datos de negocio</h2></div>
+      <div class="cuerpo tabla">
+        <table>
+          <tr th:each="e : ${caso.registro}"
+              th:unless="${e.key == 'tareasPendientes' or e.key == 'mensajesEsperados' or e.key == 'accionesUsuario' or e.key == 'estadoProceso'}">
+            <th th:text="${fmt.etiqueta(e.key)}">campo</th>
+            <td th:text="${fmt.texto(e.value)}">valor</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="tarjeta">
+        <div class="cab"><h2>Pendiente ahora</h2></div>
+        <div class="cuerpo">
+          <p class="vacio" th:if="${#lists.isEmpty(caso.registro.tareasPendientes) and #lists.isEmpty(caso.registro.mensajesEsperados)}">Nada pendiente.</p>
+          <div th:each="t : ${caso.registro.tareasPendientes}" class="acciones" style="margin-bottom:8px">
+            <span class="dato">Tarea<b th:text="${t.nombre}">Tarea</b></span>
+            <span class="chip" th:text="${t.asignadaA != null ? t.asignadaA : 'sin reclamar'}">resp</span>
+            <a class="btn peq" th:href="@{/tareas/{id}(id=${t.id})}">Atender</a>
+          </div>
+          <div th:each="m : ${caso.registro.mensajesEsperados}" class="dato" style="margin-bottom:8px">Esperando mensaje del usuario o de Recaudo<b th:text="${m}">Mensaje</b></div>
+        </div>
+      </div>
+      <div class="tarjeta">
+        <div class="cab"><h2>Historial (bitácora gc_evento_caso)</h2></div>
+        <div class="cuerpo">
+          <ul class="linea-tiempo">
+            <li th:each="ev : ${caso.eventos}">
+              <b th:text="${ev.actividad}">Actividad</b> <span class="chip" th:text="${ev.evento}">EVENTO</span>
+              <div class="cuando"><span th:text="${ev.fecha}">fecha</span><span th:if="${ev.usuario != null}" th:text="' · ' + ${ev.usuario}"></span>
+                <span th:if="${ev.detalle != null}" th:text="' · ' + ${ev.detalle}"></span></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <a class="btn sec" th:href="@{/casos}">Volver a casos</a>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

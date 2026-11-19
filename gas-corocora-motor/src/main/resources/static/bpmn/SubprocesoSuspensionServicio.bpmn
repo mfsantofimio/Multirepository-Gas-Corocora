@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_SuspensionServicio" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.28.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.21.0">
+  <bpmn:collaboration id="Collaboration_SuspensionServicio">
+    <bpmn:participant id="Participant_SuspensionServicio" name="GAS COROCORA - Suspensión del servicio por mora" processRef="Proceso_SuspensionServicio" />
+  </bpmn:collaboration>
+  <bpmn:process id="Proceso_SuspensionServicio" name="Suspensión del Servicio por Mora" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:documentation>Subproceso reutilizable invocado por Call Activity desde Medición y Facturación.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_SuspensionServicio">
+      <bpmn:lane id="Lane_AnalistaCartera" name="Analista de cartera">
+        <bpmn:flowNodeRef>StartEvent_MoraDetectada</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_GenerarOrdenSuspension</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_RegistrarFechaSuspension</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_SuspensionEjecutada</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_TecnicoSuspension" name="Técnico de suspensión">
+        <bpmn:flowNodeRef>Activity_EjecutarSuspension</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_SuspensionEjecutada</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_SuspensionNoEjecutada</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_MoraDetectada" name="Mora detectada">
+      <bpmn:outgoing>Flow_MoraAOrden</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_GenerarOrdenSuspension" name="Generar orden de suspensión" camunda:class="com.gascorocora.implementations.facturacion.GenerarOrdenSuspensionDelegate">
+      <bpmn:incoming>Flow_MoraAOrden</bpmn:incoming>
+      <bpmn:outgoing>Flow_OrdenAEjecutar</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Activity_EjecutarSuspension" name="Ejecutar suspensión en terreno" camunda:formRef="formEjecutarSuspension" camunda:formRefBinding="latest" camunda:candidateGroups="tecnicosSuspension">
+      <bpmn:incoming>Flow_OrdenAEjecutar</bpmn:incoming>
+      <bpmn:outgoing>Flow_EjecutarAValidar</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_SuspensionEjecutada" name="¿Suspensión ejecutada?">
+      <bpmn:incoming>Flow_EjecutarAValidar</bpmn:incoming>
+      <bpmn:outgoing>Flow_SuspensionSi</bpmn:outgoing>
+      <bpmn:outgoing>Flow_SuspensionNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Activity_RegistrarFechaSuspension" name="Registrar fecha de suspensión" camunda:expression="${now()}" camunda:resultVariable="fechaSuspension">
+      <bpmn:incoming>Flow_SuspensionSi</bpmn:incoming>
+      <bpmn:outgoing>Flow_FechaAFin</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_SuspensionEjecutada" name="Servicio suspendido">
+      <bpmn:incoming>Flow_FechaAFin</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="End_SuspensionNoEjecutada" name="Suspensión no ejecutada">
+      <bpmn:incoming>Flow_SuspensionNo</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_MoraAOrden" sourceRef="StartEvent_MoraDetectada" targetRef="Activity_GenerarOrdenSuspension" />
+    <bpmn:sequenceFlow id="Flow_OrdenAEjecutar" sourceRef="Activity_GenerarOrdenSuspension" targetRef="Activity_EjecutarSuspension" />
+    <bpmn:sequenceFlow id="Flow_EjecutarAValidar" sourceRef="Activity_EjecutarSuspension" targetRef="Gateway_SuspensionEjecutada" />
+    <bpmn:sequenceFlow id="Flow_SuspensionSi" name="Sí" sourceRef="Gateway_SuspensionEjecutada" targetRef="Activity_RegistrarFechaSuspension">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${suspensionEjecutada}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_SuspensionNo" name="No" sourceRef="Gateway_SuspensionEjecutada" targetRef="End_SuspensionNoEjecutada">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!suspensionEjecutada}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_FechaAFin" sourceRef="Activity_RegistrarFechaSuspension" targetRef="End_SuspensionEjecutada" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_SuspensionServicio">
+    <bpmndi:BPMNPlane id="BPMNPlane_SuspensionServicio" bpmnElement="Collaboration_SuspensionServicio">
+      <bpmndi:BPMNShape id="Participant_SuspensionServicio_di" bpmnElement="Participant_SuspensionServicio" isHorizontal="true">
+        <dc:Bounds x="150" y="80" width="950" height="300" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_AnalistaCartera_di" bpmnElement="Lane_AnalistaCartera" isHorizontal="true">
+        <dc:Bounds x="180" y="80" width="920" height="150" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_TecnicoSuspension_di" bpmnElement="Lane_TecnicoSuspension" isHorizontal="true">
+        <dc:Bounds x="180" y="230" width="920" height="150" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_MoraDetectada_di" bpmnElement="StartEvent_MoraDetectada">
+        <dc:Bounds x="242" y="137" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="205" y="177" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_GenerarOrdenSuspension_di" bpmnElement="Activity_GenerarOrdenSuspension">
+        <dc:Bounds x="360" y="115" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_EjecutarSuspension_di" bpmnElement="Activity_EjecutarSuspension">
+        <dc:Bounds x="510" y="265" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_SuspensionEjecutada_di" bpmnElement="Gateway_SuspensionEjecutada" isMarkerVisible="true">
+        <dc:Bounds x="685" y="280" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="655" y="334" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_RegistrarFechaSuspension_di" bpmnElement="Activity_RegistrarFechaSuspension">
+        <dc:Bounds x="810" y="115" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_SuspensionEjecutada_di" bpmnElement="End_SuspensionEjecutada">
+        <dc:Bounds x="992" y="137" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="955" y="177" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_SuspensionNoEjecutada_di" bpmnElement="End_SuspensionNoEjecutada">
+        <dc:Bounds x="842" y="287" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="805" y="327" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_MoraAOrden_di" bpmnElement="Flow_MoraAOrden">
+        <di:waypoint x="278" y="155" />
+        <di:waypoint x="360" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_OrdenAEjecutar_di" bpmnElement="Flow_OrdenAEjecutar">
+        <di:waypoint x="460" y="155" />
+        <di:waypoint x="485" y="155" />
+        <di:waypoint x="485" y="305" />
+        <di:waypoint x="510" y="305" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EjecutarAValidar_di" bpmnElement="Flow_EjecutarAValidar">
+        <di:waypoint x="610" y="305" />
+        <di:waypoint x="685" y="305" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SuspensionSi_di" bpmnElement="Flow_SuspensionSi">
+        <di:waypoint x="710" y="280" />
+        <di:waypoint x="710" y="155" />
+        <di:waypoint x="810" y="155" />
+        <bpmndi:BPMNLabel><dc:Bounds x="715" y="210" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SuspensionNo_di" bpmnElement="Flow_SuspensionNo">
+        <di:waypoint x="735" y="305" />
+        <di:waypoint x="842" y="305" />
+        <bpmndi:BPMNLabel><dc:Bounds x="741" y="285" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FechaAFin_di" bpmnElement="Flow_FechaAFin">
+        <di:waypoint x="910" y="155" />
+        <di:waypoint x="992" y="155" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_ConexionNuevosUsuarios" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.28.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.21.0">
+  <bpmn:collaboration id="Collaboration_ConexionNuevosUsuarios">
+    <bpmn:participant id="Participant_ConexionNuevosUsuarios" name="GAS COROCORA - Gestión de Conexión de Nuevos Usuarios" processRef="Proceso_ConexionNuevosUsuarios" />
+    <bpmn:participant id="Participant_Solicitante" name="Usuario solicitante" />
+    <bpmn:messageFlow id="MessageFlow_ContratoConexion" name="Cotización y contrato" sourceRef="Activity_EnviarContrato" targetRef="Participant_Solicitante" />
+    <bpmn:messageFlow id="MessageFlow_ContratoFirmado" name="Contrato firmado" sourceRef="Participant_Solicitante" targetRef="Event_ContratoFirmado" />
+  </bpmn:collaboration>
+  <bpmn:process id="Proceso_ConexionNuevosUsuarios" name="Gestión de Conexión de Nuevos Usuarios" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:documentation>P2 del portafolio. Convierte la solicitud de un usuario potencial en un punto de servicio conectado: viabilidad (DMN), diseño y contrato en paralelo, firma (mensaje) y obra (Call Activity con timer).</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_ConexionNuevosUsuarios">
+      <bpmn:lane id="Lane_AsesorComercial" name="Asesor comercial">
+        <bpmn:flowNodeRef>StartEvent_SolicitudRecibida</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_RevisarDocumentos</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_DocumentosCompletos</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_NotificarDevolucion</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_SolicitudDevuelta</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_NotificarNoViabilidad</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_SolicitudNoViable</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_ContratoFirmado</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_EscalarIncumplimiento</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_ConexionCancelada</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_IngenieriaRedes" name="Ingeniería de redes">
+        <bpmn:flowNodeRef>Activity_RealizarVisitaTecnica</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_DisenarAcometida</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>CallActivity_ConstruirAcometida</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_PlazoObraVencido</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_SistemaComercialConexion" name="Sistema comercial">
+        <bpmn:flowNodeRef>Activity_RegistrarSolicitud</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_EvaluarViabilidad</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Viabilidad</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_CalcularCotizacion</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_InicioParalelo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_GenerarContrato</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_FinParalelo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_EnviarContrato</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_MatricularUsuario</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_UsuarioConectado</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_SolicitudRecibida" name="Solicitud de conexión recibida" camunda:formRef="formSolicitudConexion" camunda:formRefBinding="latest" camunda:initiator="iniciador">
+      <bpmn:outgoing>Flow_SolicitudARegistrar</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_RegistrarSolicitud" name="Registrar solicitud de conexión" camunda:class="com.gascorocora.implementations.conexion.RegistrarSolicitudConexionDelegate">
+      <bpmn:incoming>Flow_SolicitudARegistrar</bpmn:incoming>
+      <bpmn:outgoing>Flow_RegistrarARevisar</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Activity_RevisarDocumentos" name="Revisar documentos del predio" camunda:formRef="formRevisarDocumentos" camunda:formRefBinding="latest" camunda:candidateGroups="asesoresComerciales">
+      <bpmn:incoming>Flow_RegistrarARevisar</bpmn:incoming>
+      <bpmn:outgoing>Flow_RevisarADocumentos</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_DocumentosCompletos" name="¿Documentos completos?">
+      <bpmn:incoming>Flow_RevisarADocumentos</bpmn:incoming>
+      <bpmn:outgoing>Flow_DocumentosIncompletos</bpmn:outgoing>
+      <bpmn:outgoing>Flow_DocumentosCompletos</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Activity_NotificarDevolucion" name="Notificar devolución de la solicitud" camunda:class="com.gascorocora.implementations.conexion.NotificarDevolucionDelegate">
+      <bpmn:incoming>Flow_DocumentosIncompletos</bpmn:incoming>
+      <bpmn:outgoing>Flow_DevolucionAFin</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_SolicitudDevuelta" name="Solicitud devuelta">
+      <bpmn:incoming>Flow_DevolucionAFin</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Activity_RealizarVisitaTecnica" name="Realizar visita técnica" camunda:formRef="formVisitaTecnica" camunda:formRefBinding="latest" camunda:candidateGroups="ingenierosRedes">
+      <bpmn:incoming>Flow_DocumentosCompletos</bpmn:incoming>
+      <bpmn:outgoing>Flow_VisitaAViabilidad</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:businessRuleTask id="Activity_EvaluarViabilidad" name="Evaluar viabilidad técnica" camunda:decisionRef="Decision_ViabilidadTecnica" camunda:decisionRefBinding="latest" camunda:resultVariable="viabilidad" camunda:mapDecisionResult="singleEntry">
+      <bpmn:incoming>Flow_VisitaAViabilidad</bpmn:incoming>
+      <bpmn:outgoing>Flow_ViabilidadADecision</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:exclusiveGateway id="Gateway_Viabilidad" name="¿Es viable?">
+      <bpmn:incoming>Flow_ViabilidadADecision</bpmn:incoming>
+      <bpmn:outgoing>Flow_NoViable</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Viable</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Activity_NotificarNoViabilidad" name="Notificar no viabilidad técnica" camunda:class="com.gascorocora.implementations.conexion.NotificarNoViabilidadDelegate">
+      <bpmn:incoming>Flow_NoViable</bpmn:incoming>
+      <bpmn:outgoing>Flow_NoViableAFin</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_SolicitudNoViable" name="Solicitud no viable">
+      <bpmn:incoming>Flow_NoViableAFin</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_CalcularCotizacion" name="Calcular cotización de la conexión" camunda:delegateExpression="#{cotizacionConexionDelegate}">
+      <bpmn:incoming>Flow_Viable</bpmn:incoming>
+      <bpmn:outgoing>Flow_CotizacionAParalelo</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:parallelGateway id="Gateway_InicioParalelo" name="">
+      <bpmn:incoming>Flow_CotizacionAParalelo</bpmn:incoming>
+      <bpmn:outgoing>Flow_ParaleloADiseno</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ParaleloAContrato</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:userTask id="Activity_DisenarAcometida" name="Elaborar diseño de acometida" camunda:formRef="formDisenarAcometida" camunda:formRefBinding="latest" camunda:candidateGroups="ingenierosRedes">
+      <bpmn:incoming>Flow_ParaleloADiseno</bpmn:incoming>
+      <bpmn:outgoing>Flow_DisenoAFinParalelo</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Activity_GenerarContrato" name="Generar contrato de condiciones uniformes" camunda:class="com.gascorocora.implementations.conexion.GenerarContratoDelegate">
+      <bpmn:incoming>Flow_ParaleloAContrato</bpmn:incoming>
+      <bpmn:outgoing>Flow_ContratoAFinParalelo</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:parallelGateway id="Gateway_FinParalelo" name="">
+      <bpmn:incoming>Flow_DisenoAFinParalelo</bpmn:incoming>
+      <bpmn:incoming>Flow_ContratoAFinParalelo</bpmn:incoming>
+      <bpmn:outgoing>Flow_FinParaleloAEnviar</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:serviceTask id="Activity_EnviarContrato" name="Enviar cotización y contrato al usuario" camunda:type="external" camunda:topic="EnviarContratoConexion">
+      <bpmn:incoming>Flow_FinParaleloAEnviar</bpmn:incoming>
+      <bpmn:outgoing>Flow_EnviarAFirma</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="Event_ContratoFirmado" name="Contrato firmado por el usuario">
+      <bpmn:incoming>Flow_EnviarAFirma</bpmn:incoming>
+      <bpmn:outgoing>Flow_FirmaAConstruir</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_ContratoFirmado" messageRef="Message_ContratoFirmado" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:callActivity id="CallActivity_ConstruirAcometida" name="Construir acometida e instalación interna" calledElement="Proceso_ConstruccionAcometida" camunda:calledElementBinding="latest">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_FirmaAConstruir</bpmn:incoming>
+      <bpmn:outgoing>Flow_ConstruirAMatricular</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:boundaryEvent id="Event_PlazoObraVencido" name="Plazo de obra vencido" attachedToRef="CallActivity_ConstruirAcometida">
+      <bpmn:outgoing>Flow_PlazoAEscalar</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_PlazoObra">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">${plazosProceso.plazoObraConexion}</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:userTask id="Activity_EscalarIncumplimiento" name="Escalar incumplimiento del contratista" camunda:formRef="formEscalarIncumplimiento" camunda:formRefBinding="latest" camunda:candidateGroups="asesoresComerciales">
+      <bpmn:incoming>Flow_PlazoAEscalar</bpmn:incoming>
+      <bpmn:outgoing>Flow_EscalarAFin</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="End_ConexionCancelada" name="Obra escalada por incumplimiento">
+      <bpmn:incoming>Flow_EscalarAFin</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_MatricularUsuario" name="Matricular usuario en el sistema comercial" camunda:delegateExpression="#{matriculaUsuarioDelegate}">
+      <bpmn:incoming>Flow_ConstruirAMatricular</bpmn:incoming>
+      <bpmn:outgoing>Flow_MatricularAFin</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_UsuarioConectado" name="Usuario conectado y habilitado">
+      <bpmn:incoming>Flow_MatricularAFin</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_SolicitudARegistrar" sourceRef="StartEvent_SolicitudRecibida" targetRef="Activity_RegistrarSolicitud" />
+    <bpmn:sequenceFlow id="Flow_RegistrarARevisar" sourceRef="Activity_RegistrarSolicitud" targetRef="Activity_RevisarDocumentos" />
+    <bpmn:sequenceFlow id="Flow_RevisarADocumentos" sourceRef="Activity_RevisarDocumentos" targetRef="Gateway_DocumentosCompletos" />
+    <bpmn:sequenceFlow id="Flow_DocumentosIncompletos" name="No" sourceRef="Gateway_DocumentosCompletos" targetRef="Activity_NotificarDevolucion">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!documentosCompletos}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_DevolucionAFin" sourceRef="Activity_NotificarDevolucion" targetRef="End_SolicitudDevuelta" />
+    <bpmn:sequenceFlow id="Flow_DocumentosCompletos" name="Sí" sourceRef="Gateway_DocumentosCompletos" targetRef="Activity_RealizarVisitaTecnica">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${documentosCompletos}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_VisitaAViabilidad" sourceRef="Activity_RealizarVisitaTecnica" targetRef="Activity_EvaluarViabilidad" />
+    <bpmn:sequenceFlow id="Flow_ViabilidadADecision" sourceRef="Activity_EvaluarViabilidad" targetRef="Gateway_Viabilidad" />
+    <bpmn:sequenceFlow id="Flow_NoViable" name="No viable" sourceRef="Gateway_Viabilidad" targetRef="Activity_NotificarNoViabilidad">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${viabilidad == 'NO_VIABLE'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_NoViableAFin" sourceRef="Activity_NotificarNoViabilidad" targetRef="End_SolicitudNoViable" />
+    <bpmn:sequenceFlow id="Flow_Viable" name="Viable" sourceRef="Gateway_Viabilidad" targetRef="Activity_CalcularCotizacion">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${viabilidad != 'NO_VIABLE'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_CotizacionAParalelo" sourceRef="Activity_CalcularCotizacion" targetRef="Gateway_InicioParalelo" />
+    <bpmn:sequenceFlow id="Flow_ParaleloADiseno" sourceRef="Gateway_InicioParalelo" targetRef="Activity_DisenarAcometida" />
+    <bpmn:sequenceFlow id="Flow_ParaleloAContrato" sourceRef="Gateway_InicioParalelo" targetRef="Activity_GenerarContrato" />
+    <bpmn:sequenceFlow id="Flow_DisenoAFinParalelo" sourceRef="Activity_DisenarAcometida" targetRef="Gateway_FinParalelo" />
+    <bpmn:sequenceFlow id="Flow_ContratoAFinParalelo" sourceRef="Activity_GenerarContrato" targetRef="Gateway_FinParalelo" />
+    <bpmn:sequenceFlow id="Flow_FinParaleloAEnviar" sourceRef="Gateway_FinParalelo" targetRef="Activity_EnviarContrato" />
+    <bpmn:sequenceFlow id="Flow_EnviarAFirma" sourceRef="Activity_EnviarContrato" targetRef="Event_ContratoFirmado" />
+    <bpmn:sequenceFlow id="Flow_FirmaAConstruir" sourceRef="Event_ContratoFirmado" targetRef="CallActivity_ConstruirAcometida" />
+    <bpmn:sequenceFlow id="Flow_PlazoAEscalar" sourceRef="Event_PlazoObraVencido" targetRef="Activity_EscalarIncumplimiento" />
+    <bpmn:sequenceFlow id="Flow_EscalarAFin" sourceRef="Activity_EscalarIncumplimiento" targetRef="End_ConexionCancelada" />
+    <bpmn:sequenceFlow id="Flow_ConstruirAMatricular" sourceRef="CallActivity_ConstruirAcometida" targetRef="Activity_MatricularUsuario" />
+    <bpmn:sequenceFlow id="Flow_MatricularAFin" sourceRef="Activity_MatricularUsuario" targetRef="End_UsuarioConectado" />
+    <bpmn:textAnnotation id="TextAnnotation_TimerObra">
+      <bpmn:text>Timer interruptor: cancela la obra si vence el plazo (demo PT10M)</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_TextAnnotation_TimerObra" sourceRef="CallActivity_ConstruirAcometida" targetRef="TextAnnotation_TimerObra" />
+  </bpmn:process>
+  <bpmn:message id="Message_ContratoFirmado" name="MensajeContratoFirmado" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_ConexionNuevosUsuarios">
+    <bpmndi:BPMNPlane id="BPMNPlane_ConexionNuevosUsuarios" bpmnElement="Collaboration_ConexionNuevosUsuarios">
+      <bpmndi:BPMNShape id="Participant_ConexionNuevosUsuarios_di" bpmnElement="Participant_ConexionNuevosUsuarios" isHorizontal="true">
+        <dc:Bounds x="150" y="190" width="2450" height="500" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_AsesorComercial_di" bpmnElement="Lane_AsesorComercial" isHorizontal="true">
+        <dc:Bounds x="180" y="190" width="2420" height="170" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_IngenieriaRedes_di" bpmnElement="Lane_IngenieriaRedes" isHorizontal="true">
+        <dc:Bounds x="180" y="360" width="2420" height="160" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_SistemaComercialConexion_di" bpmnElement="Lane_SistemaComercialConexion" isHorizontal="true">
+        <dc:Bounds x="180" y="520" width="2420" height="170" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_Solicitante_di" bpmnElement="Participant_Solicitante" isHorizontal="true">
+        <dc:Bounds x="150" y="80" width="2450" height="60" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_SolicitudRecibida_di" bpmnElement="StartEvent_SolicitudRecibida">
+        <dc:Bounds x="242" y="257" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="205" y="297" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_RegistrarSolicitud_di" bpmnElement="Activity_RegistrarSolicitud">
+        <dc:Bounds x="360" y="565" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_RevisarDocumentos_di" bpmnElement="Activity_RevisarDocumentos">
+        <dc:Bounds x="510" y="235" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_DocumentosCompletos_di" bpmnElement="Gateway_DocumentosCompletos" isMarkerVisible="true">
+        <dc:Bounds x="685" y="250" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="655" y="304" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_NotificarDevolucion_di" bpmnElement="Activity_NotificarDevolucion">
+        <dc:Bounds x="810" y="235" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_SolicitudDevuelta_di" bpmnElement="End_SolicitudDevuelta">
+        <dc:Bounds x="992" y="257" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="955" y="297" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_RealizarVisitaTecnica_di" bpmnElement="Activity_RealizarVisitaTecnica">
+        <dc:Bounds x="810" y="400" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_EvaluarViabilidad_di" bpmnElement="Activity_EvaluarViabilidad">
+        <dc:Bounds x="960" y="565" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Viabilidad_di" bpmnElement="Gateway_Viabilidad" isMarkerVisible="true">
+        <dc:Bounds x="1135" y="580" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1105" y="634" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_NotificarNoViabilidad_di" bpmnElement="Activity_NotificarNoViabilidad">
+        <dc:Bounds x="1260" y="235" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_SolicitudNoViable_di" bpmnElement="End_SolicitudNoViable">
+        <dc:Bounds x="1442" y="257" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1405" y="297" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_CalcularCotizacion_di" bpmnElement="Activity_CalcularCotizacion">
+        <dc:Bounds x="1260" y="565" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_InicioParalelo_di" bpmnElement="Gateway_InicioParalelo">
+        <dc:Bounds x="1435" y="580" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1405" y="634" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_DisenarAcometida_di" bpmnElement="Activity_DisenarAcometida">
+        <dc:Bounds x="1560" y="400" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_GenerarContrato_di" bpmnElement="Activity_GenerarContrato">
+        <dc:Bounds x="1560" y="565" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_FinParalelo_di" bpmnElement="Gateway_FinParalelo">
+        <dc:Bounds x="1735" y="580" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1705" y="634" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_EnviarContrato_di" bpmnElement="Activity_EnviarContrato">
+        <dc:Bounds x="1860" y="565" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_ContratoFirmado_di" bpmnElement="Event_ContratoFirmado">
+        <dc:Bounds x="2042" y="257" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2005" y="297" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CallActivity_ConstruirAcometida_di" bpmnElement="CallActivity_ConstruirAcometida">
+        <dc:Bounds x="2160" y="400" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_PlazoObraVencido_di" bpmnElement="Event_PlazoObraVencido">
+        <dc:Bounds x="2220" y="382" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2260" y="352" width="90" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_EscalarIncumplimiento_di" bpmnElement="Activity_EscalarIncumplimiento">
+        <dc:Bounds x="2310" y="235" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_ConexionCancelada_di" bpmnElement="End_ConexionCancelada">
+        <dc:Bounds x="2492" y="257" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2455" y="297" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_MatricularUsuario_di" bpmnElement="Activity_MatricularUsuario">
+        <dc:Bounds x="2310" y="565" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_UsuarioConectado_di" bpmnElement="End_UsuarioConectado">
+        <dc:Bounds x="2492" y="587" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2455" y="627" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_TimerObra_di" bpmnElement="TextAnnotation_TimerObra">
+        <dc:Bounds x="1995" y="488" width="160" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_SolicitudARegistrar_di" bpmnElement="Flow_SolicitudARegistrar">
+        <di:waypoint x="278" y="275" />
+        <di:waypoint x="319" y="275" />
+        <di:waypoint x="319" y="605" />
+        <di:waypoint x="360" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RegistrarARevisar_di" bpmnElement="Flow_RegistrarARevisar">
+        <di:waypoint x="460" y="605" />
+        <di:waypoint x="485" y="605" />
+        <di:waypoint x="485" y="275" />
+        <di:waypoint x="510" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RevisarADocumentos_di" bpmnElement="Flow_RevisarADocumentos">
+        <di:waypoint x="610" y="275" />
+        <di:waypoint x="685" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DocumentosIncompletos_di" bpmnElement="Flow_DocumentosIncompletos">
+        <di:waypoint x="735" y="275" />
+        <di:waypoint x="810" y="275" />
+        <bpmndi:BPMNLabel><dc:Bounds x="741" y="255" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DevolucionAFin_di" bpmnElement="Flow_DevolucionAFin">
+        <di:waypoint x="910" y="275" />
+        <di:waypoint x="992" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DocumentosCompletos_di" bpmnElement="Flow_DocumentosCompletos">
+        <di:waypoint x="710" y="300" />
+        <di:waypoint x="710" y="440" />
+        <di:waypoint x="810" y="440" />
+        <bpmndi:BPMNLabel><dc:Bounds x="715" y="363" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_VisitaAViabilidad_di" bpmnElement="Flow_VisitaAViabilidad">
+        <di:waypoint x="910" y="440" />
+        <di:waypoint x="935" y="440" />
+        <di:waypoint x="935" y="605" />
+        <di:waypoint x="960" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ViabilidadADecision_di" bpmnElement="Flow_ViabilidadADecision">
+        <di:waypoint x="1060" y="605" />
+        <di:waypoint x="1135" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NoViable_di" bpmnElement="Flow_NoViable">
+        <di:waypoint x="1160" y="580" />
+        <di:waypoint x="1160" y="275" />
+        <di:waypoint x="1260" y="275" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1165" y="420" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NoViableAFin_di" bpmnElement="Flow_NoViableAFin">
+        <di:waypoint x="1360" y="275" />
+        <di:waypoint x="1442" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Viable_di" bpmnElement="Flow_Viable">
+        <di:waypoint x="1185" y="605" />
+        <di:waypoint x="1260" y="605" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1191" y="585" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CotizacionAParalelo_di" bpmnElement="Flow_CotizacionAParalelo">
+        <di:waypoint x="1360" y="605" />
+        <di:waypoint x="1435" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ParaleloADiseno_di" bpmnElement="Flow_ParaleloADiseno">
+        <di:waypoint x="1460" y="580" />
+        <di:waypoint x="1460" y="440" />
+        <di:waypoint x="1560" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ParaleloAContrato_di" bpmnElement="Flow_ParaleloAContrato">
+        <di:waypoint x="1485" y="605" />
+        <di:waypoint x="1560" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DisenoAFinParalelo_di" bpmnElement="Flow_DisenoAFinParalelo">
+        <di:waypoint x="1660" y="440" />
+        <di:waypoint x="1760" y="440" />
+        <di:waypoint x="1760" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ContratoAFinParalelo_di" bpmnElement="Flow_ContratoAFinParalelo">
+        <di:waypoint x="1660" y="605" />
+        <di:waypoint x="1735" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FinParaleloAEnviar_di" bpmnElement="Flow_FinParaleloAEnviar">
+        <di:waypoint x="1785" y="605" />
+        <di:waypoint x="1860" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EnviarAFirma_di" bpmnElement="Flow_EnviarAFirma">
+        <di:waypoint x="1960" y="605" />
+        <di:waypoint x="2001" y="605" />
+        <di:waypoint x="2001" y="275" />
+        <di:waypoint x="2042" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FirmaAConstruir_di" bpmnElement="Flow_FirmaAConstruir">
+        <di:waypoint x="2078" y="275" />
+        <di:waypoint x="2119" y="275" />
+        <di:waypoint x="2119" y="440" />
+        <di:waypoint x="2160" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PlazoAEscalar_di" bpmnElement="Flow_PlazoAEscalar">
+        <di:waypoint x="2238" y="382" />
+        <di:waypoint x="2238" y="275" />
+        <di:waypoint x="2310" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EscalarAFin_di" bpmnElement="Flow_EscalarAFin">
+        <di:waypoint x="2410" y="275" />
+        <di:waypoint x="2492" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ConstruirAMatricular_di" bpmnElement="Flow_ConstruirAMatricular">
+        <di:waypoint x="2260" y="440" />
+        <di:waypoint x="2285" y="440" />
+        <di:waypoint x="2285" y="605" />
+        <di:waypoint x="2310" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_MatricularAFin_di" bpmnElement="Flow_MatricularAFin">
+        <di:waypoint x="2410" y="605" />
+        <di:waypoint x="2492" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_TextAnnotation_TimerObra_di" bpmnElement="Association_TextAnnotation_TimerObra">
+        <di:waypoint x="2210" y="480" />
+        <di:waypoint x="1995" y="488" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_ContratoConexion_di" bpmnElement="MessageFlow_ContratoConexion">
+        <di:waypoint x="1910" y="565" />
+        <di:waypoint x="1910" y="140" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1915" y="346" width="90" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_ContratoFirmado_di" bpmnElement="MessageFlow_ContratoFirmado">
+        <di:waypoint x="2060" y="140" />
+        <di:waypoint x="2060" y="257" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2065" y="192" width="90" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

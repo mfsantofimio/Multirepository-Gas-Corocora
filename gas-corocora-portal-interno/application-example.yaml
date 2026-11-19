@@ -1,0 +1,17 @@
+server:
+  port: 8082
+  servlet:
+    session:
+      timeout: 60m
+
+spring:
+  application:
+    name: gas-corocora-portal-interno
+  thymeleaf:
+    cache: false
+
+gascorocora:
+  motor:
+    url: http://127.0.0.1:8080                   # API de negocio del motor (/api/casos)
+  camunda:
+    url: http://127.0.0.1:8080/engine-rest       # API REST de Camunda (tareas, formularios, identidad)

@@ -1,0 +1,87 @@
+{
+  "components": [
+    {
+      "text": "# Aprobar ajuste a la factura",
+      "type": "text",
+      "layout": {
+        "row": "Row_formAprobarAjuste_01",
+        "columns": null
+      },
+      "id": "Field_formAprobarAjuste_01"
+    },
+    {
+      "label": "Número de radicado",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formAprobarAjuste_02",
+        "columns": null
+      },
+      "id": "Field_formAprobarAjuste_02",
+      "key": "numeroRadicado",
+      "disabled": true
+    },
+    {
+      "label": "Número de cuenta",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formAprobarAjuste_03",
+        "columns": null
+      },
+      "id": "Field_formAprobarAjuste_03",
+      "key": "numeroCuenta",
+      "disabled": true
+    },
+    {
+      "label": "Valor del ajuste solicitado (COP)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formAprobarAjuste_04",
+        "columns": null
+      },
+      "id": "Field_formAprobarAjuste_04",
+      "key": "valorAjuste",
+      "disabled": true
+    },
+    {
+      "label": "Justificación del analista",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formAprobarAjuste_05",
+        "columns": null
+      },
+      "id": "Field_formAprobarAjuste_05",
+      "key": "respuestaUsuario",
+      "disabled": true
+    },
+    {
+      "label": "Apruebo el ajuste",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_formAprobarAjuste_06",
+        "columns": null
+      },
+      "id": "Field_formAprobarAjuste_06",
+      "key": "ajusteAprobado",
+      "defaultValue": false
+    },
+    {
+      "label": "Observaciones",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formAprobarAjuste_07",
+        "columns": null
+      },
+      "id": "Field_formAprobarAjuste_07",
+      "key": "observacionAjuste"
+    }
+  ],
+  "type": "default",
+  "id": "formAprobarAjuste",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

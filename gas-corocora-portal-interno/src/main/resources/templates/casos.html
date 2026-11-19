@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Casos')}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('casos')}"></div>
+<main>
+  <h1>Casos</h1>
+  <p class="sub">Solicitudes de conexión, facturas y PQRS registradas en la base de negocio, con su estado en el motor.</p>
+  <div th:replace="~{fragmentos :: avisos}"></div>
+  <form class="acciones" th:action="@{/casos}" method="get" style="margin-bottom:16px">
+    <input type="text" name="referencia" placeholder="CON-…, FAC-… o PQRS-…" style="max-width:320px">
+    <button class="btn" type="submit">Buscar</button>
+  </form>
+  <div class="tarjeta">
+    <div class="cuerpo tabla">
+      <p class="vacio" th:if="${#lists.isEmpty(casos)}">Aún no hay casos registrados.</p>
+      <table th:unless="${#lists.isEmpty(casos)}">
+        <thead><tr><th>Tipo</th><th>Referencia</th><th>Titular / cuenta</th><th>Estado del trámite</th><th>Proceso</th><th>Pendiente</th><th>Actualizado</th></tr></thead>
+        <tbody>
+          <tr th:each="c : ${casos}">
+            <td th:text="${c.tipo}">TIPO</td>
+            <td><a th:href="@{/casos/{r}(r=${c.referencia})}" th:text="${c.referencia}">REF</a></td>
+            <td th:text="${c.titular}">titular</td>
+            <td><span th:class="${fmt.claseEstado(c.estado)}" th:text="${fmt.estado(c.estado)}">estado</span></td>
+            <td><span th:class="${fmt.claseEstado(c.estadoProceso)}" th:text="${fmt.estado(c.estadoProceso)}">proceso</span></td>
+            <td class="pendiente">
+              <div th:each="t : ${c.tareasPendientes}" th:text="${t.nombre}">tarea</div>
+              <div th:each="m : ${c.mensajesEsperados}" th:text="'Espera: ' + ${m}">mensaje</div>
+            </td>
+            <td th:text="${c.ultimaActualizacion}">fecha</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

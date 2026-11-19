@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza(${tarea.name})}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('tareas')}"></div>
+<main>
+  <h1 th:text="${tarea.name}">Tarea</h1>
+  <p class="sub">
+    <span th:text="${fmt.proceso(tarea.processDefinitionId)}">Proceso</span>
+    · Rol:
+    <th:block th:each="g, st : ${gruposTarea}"><span th:text="${fmt.grupo(g)}">rol</span><span th:unless="${st.last}">, </span></th:block>
+    · Creada <span th:text="${fmt.fecha(tarea.created)}">fecha</span>
+  </p>
+  <div th:replace="~{fragmentos :: avisos}"></div>
+
+  <div class="columnas">
+    <div class="tarjeta">
+      <div class="cab">
+        <h2>Formulario de la tarea</h2>
+        <div class="acciones">
+          <span th:if="${tarea.assignee == null}" class="chip info">Disponible para su grupo</span>
+          <form th:if="${tarea.assignee == null}" th:action="@{/tareas/{id}/reclamar(id=${tarea.id})}" method="post">
+            <button class="btn sec peq" type="submit">Reclamar</button></form>
+          <span th:if="${tarea.assignee == funcionario.usuario}" class="chip ok">A mi cargo</span>
+          <form th:if="${tarea.assignee == funcionario.usuario}" th:action="@{/tareas/{id}/liberar(id=${tarea.id})}" method="post">
+            <button class="btn sec peq" type="submit">Liberar</button></form>
+          <span th:if="${tarea.assignee != null and tarea.assignee != funcionario.usuario}" class="chip alerta"
+                th:text="'Reclamada por ' + ${tarea.assignee}">otro</span>
+        </div>
+      </div>
+      <div class="cuerpo">
+        <form class="campos" th:action="@{/tareas/{id}/completar(id=${tarea.id})}" method="post">
+          <th:block th:if="${campos != null}"><div th:replace="~{fragmentos :: campos(${campos})}"></div></th:block>
+          <p class="vacio" th:if="${campos == null}">Esta tarea no tiene formulario: al completarla el proceso continúa.</p>
+          <div class="acciones">
+            <button class="btn" type="submit"
+                    th:disabled="${tarea.assignee != null and tarea.assignee != funcionario.usuario}">Completar tarea</button>
+            <a class="btn sec" th:href="@{/tareas}">Volver</a>
+          </div>
+          <p class="pendiente" th:if="${tarea.assignee == null}">Al completar, la tarea se reclama a su nombre automáticamente.</p>
+        </form>
+      </div>
+    </div>
+
+    <div>
+      <div class="tarjeta">
+        <div class="cab">
+          <h2>Información del caso</h2>
+          <a th:if="${hayCaso}" class="btn sec peq" th:href="@{/casos/{r}(r=${caso.referencia})}">Abrir caso</a>
+        </div>
+        <div class="cuerpo">
+          <p class="vacio" th:unless="${hayCaso}" th:text="${avisoCaso != null ? avisoCaso : 'Sin caso de negocio asociado.'}">Sin caso</p>
+          <th:block th:if="${hayCaso}">
+            <div class="rejilla" style="margin-bottom:12px">
+              <div class="dato">Tipo<b th:text="${caso.tipo}">TIPO</b></div>
+              <div class="dato">Referencia<b th:text="${caso.referencia}">REF</b></div>
+              <div class="dato">Estado<b><span th:class="${fmt.claseEstado(caso.registro.estado)}" th:text="${fmt.estado(caso.registro.estado)}">estado</span></b></div>
+            </div>
+            <div class="tabla">
+              <table>
+                <tr th:each="e : ${caso.registro}"
+                    th:unless="${e.key == 'processInstanceId' or e.key == 'tareasPendientes' or e.key == 'mensajesEsperados' or e.key == 'accionesUsuario' or e.key == 'estadoProceso' or e.key == 'estado' or e.key == 'claveHash'}">
+                  <th th:text="${fmt.etiqueta(e.key)}">campo</th>
+                  <td th:text="${fmt.texto(e.value)}">valor</td>
+                </tr>
+              </table>
+            </div>
+          </th:block>
+        </div>
+      </div>
+
+      <div class="tarjeta" th:if="${hayCaso}">
+        <div class="cab"><h2>Historial del caso</h2></div>
+        <div class="cuerpo">
+          <ul class="linea-tiempo">
+            <li th:each="ev : ${caso.eventos}">
+              <b th:text="${ev.actividad}">Actividad</b> <span class="chip" th:text="${ev.evento}">EVENTO</span>
+              <div class="cuando"><span th:text="${ev.fecha}">fecha</span><span th:if="${ev.usuario != null}" th:text="' · ' + ${ev.usuario}"></span></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tarjeta">
+        <div class="cuerpo">
+          <details class="variables">
+            <summary th:text="'Variables del proceso (' + ${#maps.size(variables)} + ')'">Variables</summary>
+            <div class="tabla" style="margin-top:8px">
+              <table>
+                <tr th:each="v : ${variables}">
+                  <th th:text="${v.key}">variable</th>
+                  <td><span th:text="${fmt.variable(v.value)}">valor</span> <span class="pendiente" th:text="${v.value['type']}">tipo</span></td>
+                </tr>
+              </table>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

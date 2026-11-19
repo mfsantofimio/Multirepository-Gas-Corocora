@@ -1,0 +1,79 @@
+{
+  "components": [
+    {
+      "text": "# Registrar lectura del medidor",
+      "type": "text",
+      "layout": {
+        "row": "Row_formRegistrarLectura_01",
+        "columns": null
+      },
+      "id": "Field_formRegistrarLectura_01"
+    },
+    {
+      "label": "Número de cuenta",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRegistrarLectura_02",
+        "columns": null
+      },
+      "id": "Field_formRegistrarLectura_02",
+      "key": "numeroCuenta",
+      "disabled": true
+    },
+    {
+      "label": "Suscriptor",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRegistrarLectura_03",
+        "columns": null
+      },
+      "id": "Field_formRegistrarLectura_03",
+      "key": "nombreUsuario",
+      "disabled": true
+    },
+    {
+      "label": "Lectura anterior (m³)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formRegistrarLectura_04",
+        "columns": null
+      },
+      "id": "Field_formRegistrarLectura_04",
+      "key": "lecturaAnterior",
+      "disabled": true
+    },
+    {
+      "label": "Lectura actual (m³)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formRegistrarLectura_05",
+        "columns": null
+      },
+      "id": "Field_formRegistrarLectura_05",
+      "key": "lecturaActual",
+      "validate": {
+        "required": true,
+        "min": 0
+      }
+    },
+    {
+      "label": "Observaciones de la lectura",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formRegistrarLectura_06",
+        "columns": null
+      },
+      "id": "Field_formRegistrarLectura_06",
+      "key": "observacionLectura"
+    }
+  ],
+  "type": "default",
+  "id": "formRegistrarLectura",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

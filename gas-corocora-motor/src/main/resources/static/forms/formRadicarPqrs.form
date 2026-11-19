@@ -1,0 +1,154 @@
+{
+  "components": [
+    {
+      "text": "# Radicar PQRS\nPetición, queja, reclamo o sugerencia del usuario.",
+      "type": "text",
+      "layout": {
+        "row": "Row_formRadicarPqrs_01",
+        "columns": null
+      },
+      "id": "Field_formRadicarPqrs_01"
+    },
+    {
+      "label": "Número de cuenta",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRadicarPqrs_02",
+        "columns": null
+      },
+      "id": "Field_formRadicarPqrs_02",
+      "key": "numeroCuenta",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Nombre del usuario",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRadicarPqrs_03",
+        "columns": null
+      },
+      "id": "Field_formRadicarPqrs_03",
+      "key": "nombreUsuario",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Correo electrónico",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formRadicarPqrs_04",
+        "columns": null
+      },
+      "id": "Field_formRadicarPqrs_04",
+      "key": "emailUsuario",
+      "validate": {
+        "required": true,
+        "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+      }
+    },
+    {
+      "label": "Tipo de solicitud",
+      "type": "select",
+      "layout": {
+        "row": "Row_formRadicarPqrs_05",
+        "columns": null
+      },
+      "id": "Field_formRadicarPqrs_05",
+      "key": "tipoSolicitud",
+      "values": [
+        {
+          "label": "Petición",
+          "value": "PETICION"
+        },
+        {
+          "label": "Queja",
+          "value": "QUEJA"
+        },
+        {
+          "label": "Reclamo",
+          "value": "RECLAMO"
+        },
+        {
+          "label": "Sugerencia",
+          "value": "SUGERENCIA"
+        }
+      ],
+      "validate": {
+        "required": true
+      },
+      "defaultValue": "PETICION"
+    },
+    {
+      "label": "Canal de recepción",
+      "type": "select",
+      "layout": {
+        "row": "Row_formRadicarPqrs_06",
+        "columns": null
+      },
+      "id": "Field_formRadicarPqrs_06",
+      "key": "canal",
+      "values": [
+        {
+          "label": "Presencial",
+          "value": "PRESENCIAL"
+        },
+        {
+          "label": "Telefónico",
+          "value": "TELEFONICO"
+        },
+        {
+          "label": "Web",
+          "value": "WEB"
+        },
+        {
+          "label": "Escrito",
+          "value": "ESCRITO"
+        }
+      ],
+      "validate": {
+        "required": true
+      },
+      "defaultValue": "WEB"
+    },
+    {
+      "label": "Valor reclamado (COP, 0 si no aplica)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formRadicarPqrs_07",
+        "columns": null
+      },
+      "id": "Field_formRadicarPqrs_07",
+      "key": "valorReclamado",
+      "validate": {
+        "required": true,
+        "min": 0
+      },
+      "defaultValue": 0
+    },
+    {
+      "label": "Descripción de la solicitud",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formRadicarPqrs_08",
+        "columns": null
+      },
+      "id": "Field_formRadicarPqrs_08",
+      "key": "descripcion",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "formRadicarPqrs",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

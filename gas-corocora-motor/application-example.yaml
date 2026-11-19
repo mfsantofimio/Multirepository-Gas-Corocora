@@ -1,0 +1,66 @@
+# Ejemplo de configuracion del motor (copia de src/main/resources/application.yaml).
+# Para cambiar un valor sin editar el jar: mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=9090
+# o cree un application.yaml junto al pom con solo las propiedades a cambiar.
+
+server:
+  port: 8080
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: gas-corocora-motor
+  datasource:
+    # Una sola base H2 en archivo: tablas de Camunda (ACT_*) + tablas de negocio (GC_*)
+    url: jdbc:h2:file:./h2/camunda-db
+    username: sa
+    password:
+  sql:
+    init:
+      # Crea el modelo de negocio (schema.sql) y carga la semilla (data.sql) en cada arranque.
+      # Los scripts son idempotentes: no borran datos existentes.
+      mode: always
+      encoding: UTF-8
+  h2:
+    console:
+      enabled: true          # http://localhost:8080/h2-console  (JDBC URL de arriba, usuario sa, sin clave)
+      path: /h2-console
+
+camunda.bpm:
+  admin-user:
+    id: demo
+    password: demo
+    firstName: Demo
+  filter:
+    create: All tasks
+  # Puente de eventos Camunda -> Spring: alimenta la sincronizacion del modelo de negocio
+  # y la bitacora de casos (listeners/SincronizacionNegocioListener).
+  eventing:
+    execution: true
+    task: true
+    history: false
+
+# ---------------------------------------------------------------------------
+# Parametros de negocio de GAS COROCORA (leidos por Spring y usados en el BPMN)
+# Los plazos usan formato ISO-8601. Valores cortos para la demostracion en clase;
+# el valor real de negocio se indica en el comentario.
+# ---------------------------------------------------------------------------
+gascorocora:
+  plazos:
+    pago-factura: PT5M            # real: P30D  (plazo para pagar la factura)
+    alerta-termino-pqrs: PT2M     # real: P10D  (alerta antes de vencer los 15 dias habiles)
+    termino-recurso-pqrs: PT5M    # real: P7D   (5 dias habiles para interponer recurso)
+    plazo-obra-conexion: PT10M    # real: P20D  (plazo maximo del contratista)
+  tarifas:
+    valor-m3: 2350                # COP por m3 (supuesto)
+    cargo-fijo: 4500              # COP por factura (supuesto)
+  conexion:
+    costo-base: 1150000           # meta PPM-P2-04: <= $1.150.000 por conexion
+    costo-extension-metro: 85000  # COP por metro de extension de red
+    metros-incluidos: 40          # metros cubiertos por el costo base
+  # Servicio externo de Recaudo / Tesoreria (repositorio gas-corocora-recaudo)
+  recaudo:
+    url: http://127.0.0.1:8083
+  # Usuarios internos por rol (los crea config/IdentidadInicializador al arrancar)
+  usuarios:
+    clave-por-defecto: demo

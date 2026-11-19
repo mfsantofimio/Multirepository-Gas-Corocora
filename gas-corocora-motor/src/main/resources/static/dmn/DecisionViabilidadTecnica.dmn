@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:camunda="http://camunda.org/schema/1.0/dmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_ViabilidadTecnica" name="Viabilidad técnica de conexión" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.28.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.21.0">
+  <decision id="Decision_ViabilidadTecnica" name="Evaluar viabilidad técnica de la conexión" camunda:historyTimeToLive="180">
+    <description>Determina si el predio puede conectarse a la red existente, si requiere extensión de red o si no es viable. Hit policy FIRST: la última regla actúa como valor por defecto.</description>
+    <decisionTable id="DecisionTable_ViabilidadTecnica" hitPolicy="FIRST">
+      <input id="Input_CapacidadRed" label="¿Capacidad de red suficiente?" camunda:inputVariable="capacidadRedSuficiente">
+        <inputExpression id="InputExpression_CapacidadRed" typeRef="boolean">
+          <text>capacidadRedSuficiente</text>
+        </inputExpression>
+      </input>
+      <input id="Input_DistanciaRed" label="Distancia a la red (m)" camunda:inputVariable="distanciaRedMetros">
+        <inputExpression id="InputExpression_DistanciaRed" typeRef="double">
+          <text>distanciaRedMetros</text>
+        </inputExpression>
+      </input>
+      <input id="Input_TipoPredio" label="Tipo de predio" camunda:inputVariable="tipoPredio">
+        <inputExpression id="InputExpression_TipoPredio" typeRef="string">
+          <text>tipoPredio</text>
+        </inputExpression>
+        <inputValues id="UnaryTests_TipoPredio">
+          <text>"RESIDENCIAL","COMERCIAL","INDUSTRIAL"</text>
+        </inputValues>
+      </input>
+      <output id="Output_Viabilidad" label="Viabilidad" name="viabilidad" typeRef="string">
+        <outputValues id="UnaryTests_Viabilidad">
+          <text>"VIABLE","VIABLE_CON_EXTENSION","NO_VIABLE"</text>
+        </outputValues>
+      </output>
+      <rule id="Rule_SinCapacidad">
+        <description>Sin capacidad hidráulica no se puede conectar</description>
+        <inputEntry id="UnaryTests_R1_Capacidad"><text>false</text></inputEntry>
+        <inputEntry id="UnaryTests_R1_Distancia"><text></text></inputEntry>
+        <inputEntry id="UnaryTests_R1_Tipo"><text></text></inputEntry>
+        <outputEntry id="LiteralExpression_R1"><text>"NO_VIABLE"</text></outputEntry>
+      </rule>
+      <rule id="Rule_RedFrentePredio">
+        <description>Red a menos de 40 m: conexión directa</description>
+        <inputEntry id="UnaryTests_R2_Capacidad"><text>true</text></inputEntry>
+        <inputEntry id="UnaryTests_R2_Distancia"><text>&lt;= 40</text></inputEntry>
+        <inputEntry id="UnaryTests_R2_Tipo"><text></text></inputEntry>
+        <outputEntry id="LiteralExpression_R2"><text>"VIABLE"</text></outputEntry>
+      </rule>
+      <rule id="Rule_ExtensionResidencialComercial">
+        <description>Residencial/comercial hasta 300 m con extensión de red</description>
+        <inputEntry id="UnaryTests_R3_Capacidad"><text>true</text></inputEntry>
+        <inputEntry id="UnaryTests_R3_Distancia"><text>]40..300]</text></inputEntry>
+        <inputEntry id="UnaryTests_R3_Tipo"><text>"RESIDENCIAL","COMERCIAL"</text></inputEntry>
+        <outputEntry id="LiteralExpression_R3"><text>"VIABLE_CON_EXTENSION"</text></outputEntry>
+      </rule>
+      <rule id="Rule_ExtensionIndustrial">
+        <description>Industrial hasta 1000 m con extensión de red</description>
+        <inputEntry id="UnaryTests_R4_Capacidad"><text>true</text></inputEntry>
+        <inputEntry id="UnaryTests_R4_Distancia"><text>]40..1000]</text></inputEntry>
+        <inputEntry id="UnaryTests_R4_Tipo"><text>"INDUSTRIAL"</text></inputEntry>
+        <outputEntry id="LiteralExpression_R4"><text>"VIABLE_CON_EXTENSION"</text></outputEntry>
+      </rule>
+      <rule id="Rule_PorDefecto">
+        <description>Cualquier otro caso: no viable (vereda fuera del área de cobertura)</description>
+        <inputEntry id="UnaryTests_R5_Capacidad"><text></text></inputEntry>
+        <inputEntry id="UnaryTests_R5_Distancia"><text></text></inputEntry>
+        <inputEntry id="UnaryTests_R5_Tipo"><text></text></inputEntry>
+        <outputEntry id="LiteralExpression_R5"><text>"NO_VIABLE"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_ViabilidadTecnica">
+      <dmndi:DMNShape id="DMNShape_ViabilidadTecnica" dmnElementRef="Decision_ViabilidadTecnica">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Pagar factura')}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('panel')}"></div>
+<main>
+  <h1>Pagar factura <span th:text="${factura.numeroFactura}">FAC</span></h1>
+  <p class="sub">El pago lo recibe el servicio de Recaudo de Gas Corocora, que avisa al proceso de facturación para cerrar la factura.</p>
+  <div class="tarjeta media">
+    <div class="cab"><h2>Resumen de la obligación</h2><span class="chip alerta" th:text="${obligacion.estado}">PENDIENTE</span></div>
+    <div class="cuerpo">
+      <div class="rejilla" style="margin-bottom:16px">
+        <div class="dato">Cuenta<b th:text="${factura.numeroCuenta}">CTA</b></div>
+        <div class="dato">Referencia de pago<b th:text="${obligacion.referenciaPago}">RP</b></div>
+        <div class="dato">Valor de la factura<b th:text="${fmt.cop(obligacion.valor)}">$</b></div>
+        <div class="dato">Saldo pendiente<b th:text="${fmt.cop(obligacion.saldo)}">$</b></div>
+        <div class="dato">Fecha límite<b th:text="${fmt.texto(obligacion.fechaLimite)}">fecha</b></div>
+      </div>
+      <div th:replace="~{fragmentos :: avisos}"></div>
+      <form class="campos" th:action="@{/facturas/{n}/pagar(n=${factura.numeroFactura})}" th:object="${form}" method="post">
+        <div class="dos">
+          <div class="campo" th:classappend="${#fields.hasErrors('valor')} ? 'invalido'">
+            <label for="valor">Valor a pagar (COP)</label>
+            <input type="number" id="valor" th:field="*{valor}" min="1" th:attr="max=${obligacion.saldo}" step="1" required>
+            <div class="ayuda">Puede abonar una parte; el saldo restante queda pendiente.</div>
+            <div class="err" th:if="${#fields.hasErrors('valor')}" th:errors="*{valor}"></div>
+          </div>
+          <div class="campo" th:classappend="${#fields.hasErrors('medioPago')} ? 'invalido'">
+            <label for="medioPago">Medio de pago</label>
+            <select id="medioPago" th:field="*{medioPago}" required>
+              <option value="PSE">PSE (débito a cuenta)</option>
+              <option value="TARJETA">Tarjeta de crédito</option>
+            </select>
+            <div class="err" th:if="${#fields.hasErrors('medioPago')}" th:errors="*{medioPago}"></div>
+          </div>
+        </div>
+        <div class="aviso info">Pago simulado con fines académicos: no se solicita ni se guarda ningún dato bancario.</div>
+        <div class="acciones">
+          <button class="btn" type="submit">Pagar</button>
+          <a class="btn sec" th:href="@{/panel}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

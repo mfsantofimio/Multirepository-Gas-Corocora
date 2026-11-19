@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Iniciar proceso')}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('procesos')}"></div>
+<main>
+  <h1>Iniciar proceso</h1>
+  <p class="sub">Radicación por canal presencial o telefónico. Solo aparecen los procesos que su rol puede iniciar.</p>
+  <div th:replace="~{fragmentos :: avisos}"></div>
+  <div class="tarjeta" th:if="${#lists.isEmpty(procesos)}">
+    <div class="cuerpo"><p class="vacio">Su rol no inicia procesos: atiende tareas desde la bandeja.</p></div>
+  </div>
+  <div class="rejilla">
+    <div class="tarjeta" th:each="p : ${procesos}">
+      <div class="cab"><h2 th:text="${p.nombre}">Proceso</h2></div>
+      <div class="cuerpo">
+        <p th:text="${p.descripcion}">Descripción</p>
+        <p class="pendiente" th:text="'Rol responsable: ' + ${fmt.grupo(p.grupo)}">rol</p>
+        <a class="btn" th:href="@{/procesos/{k}/iniciar(k=${p.clave})}">Iniciar</a>
+      </div>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

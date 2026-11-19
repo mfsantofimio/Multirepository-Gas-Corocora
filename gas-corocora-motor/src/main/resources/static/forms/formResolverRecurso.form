@@ -1,0 +1,79 @@
+{
+  "components": [
+    {
+      "text": "# Resolver recurso de reposición",
+      "type": "text",
+      "layout": {
+        "row": "Row_formResolverRecurso_01",
+        "columns": null
+      },
+      "id": "Field_formResolverRecurso_01"
+    },
+    {
+      "label": "Número de radicado",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formResolverRecurso_02",
+        "columns": null
+      },
+      "id": "Field_formResolverRecurso_02",
+      "key": "numeroRadicado",
+      "disabled": true
+    },
+    {
+      "label": "Respuesta inicial",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formResolverRecurso_03",
+        "columns": null
+      },
+      "id": "Field_formResolverRecurso_03",
+      "key": "respuestaUsuario",
+      "disabled": true
+    },
+    {
+      "label": "Motivo del recurso",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formResolverRecurso_04",
+        "columns": null
+      },
+      "id": "Field_formResolverRecurso_04",
+      "key": "motivoRecurso",
+      "disabled": true
+    },
+    {
+      "label": "Se confirma la decisión inicial (se remite a la SSPD en apelación)",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_formResolverRecurso_05",
+        "columns": null
+      },
+      "id": "Field_formResolverRecurso_05",
+      "key": "decisionConfirmada",
+      "defaultValue": false
+    },
+    {
+      "label": "Fundamento de la decisión",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formResolverRecurso_06",
+        "columns": null
+      },
+      "id": "Field_formResolverRecurso_06",
+      "key": "respuestaRecurso",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "formResolverRecurso",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

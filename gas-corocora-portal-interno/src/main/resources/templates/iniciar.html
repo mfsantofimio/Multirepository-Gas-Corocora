@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza(${proceso.nombre})}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('procesos')}"></div>
+<main>
+  <h1 th:text="'Iniciar: ' + ${proceso.nombre}">Iniciar</h1>
+  <p class="sub">Formulario de inicio desplegado en el motor (Camunda Form).</p>
+  <div th:replace="~{fragmentos :: avisos}"></div>
+  <div class="tarjeta media">
+    <div class="cuerpo">
+      <form class="campos" th:action="@{/procesos/{k}/iniciar(k=${proceso.clave})}" method="post">
+        <div th:replace="~{fragmentos :: campos(${campos})}"></div>
+        <div class="acciones">
+          <button class="btn" type="submit">Iniciar proceso</button>
+          <a class="btn sec" th:href="@{/procesos}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

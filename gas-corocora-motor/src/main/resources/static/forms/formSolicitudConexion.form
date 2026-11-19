@@ -1,0 +1,175 @@
+{
+  "components": [
+    {
+      "text": "# Solicitud de conexión al servicio de gas natural",
+      "type": "text",
+      "layout": {
+        "row": "Row_formSolicitudConexion_01",
+        "columns": null
+      },
+      "id": "Field_formSolicitudConexion_01"
+    },
+    {
+      "label": "Nombre del solicitante",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formSolicitudConexion_02",
+        "columns": null
+      },
+      "id": "Field_formSolicitudConexion_02",
+      "key": "nombreSolicitante",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Documento de identidad",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formSolicitudConexion_03",
+        "columns": null
+      },
+      "id": "Field_formSolicitudConexion_03",
+      "key": "documentoIdentidad",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Correo electrónico",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formSolicitudConexion_04",
+        "columns": null
+      },
+      "id": "Field_formSolicitudConexion_04",
+      "key": "emailSolicitante",
+      "validate": {
+        "required": true,
+        "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+      }
+    },
+    {
+      "label": "Teléfono",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formSolicitudConexion_05",
+        "columns": null
+      },
+      "id": "Field_formSolicitudConexion_05",
+      "key": "telefonoSolicitante",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Dirección del predio",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formSolicitudConexion_06",
+        "columns": null
+      },
+      "id": "Field_formSolicitudConexion_06",
+      "key": "direccionPredio",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Municipio",
+      "type": "select",
+      "layout": {
+        "row": "Row_formSolicitudConexion_07",
+        "columns": null
+      },
+      "id": "Field_formSolicitudConexion_07",
+      "key": "municipio",
+      "values": [
+        {
+          "label": "Villavicencio",
+          "value": "VILLAVICENCIO"
+        },
+        {
+          "label": "Acacías",
+          "value": "ACACIAS"
+        },
+        {
+          "label": "Granada",
+          "value": "GRANADA"
+        },
+        {
+          "label": "Puerto López",
+          "value": "PUERTO_LOPEZ"
+        },
+        {
+          "label": "Restrepo",
+          "value": "RESTREPO"
+        },
+        {
+          "label": "Cumaral",
+          "value": "CUMARAL"
+        },
+        {
+          "label": "Otro",
+          "value": "OTRO"
+        }
+      ],
+      "validate": {
+        "required": true
+      },
+      "defaultValue": "VILLAVICENCIO"
+    },
+    {
+      "label": "Tipo de predio",
+      "type": "select",
+      "layout": {
+        "row": "Row_formSolicitudConexion_08",
+        "columns": null
+      },
+      "id": "Field_formSolicitudConexion_08",
+      "key": "tipoPredio",
+      "values": [
+        {
+          "label": "Residencial",
+          "value": "RESIDENCIAL"
+        },
+        {
+          "label": "Comercial",
+          "value": "COMERCIAL"
+        },
+        {
+          "label": "Industrial",
+          "value": "INDUSTRIAL"
+        }
+      ],
+      "validate": {
+        "required": true
+      },
+      "defaultValue": "RESIDENCIAL"
+    },
+    {
+      "label": "Estrato socioeconómico",
+      "type": "number",
+      "layout": {
+        "row": "Row_formSolicitudConexion_09",
+        "columns": null
+      },
+      "id": "Field_formSolicitudConexion_09",
+      "key": "estrato",
+      "validate": {
+        "required": true,
+        "min": 1,
+        "max": 6
+      }
+    }
+  ],
+  "type": "default",
+  "id": "formSolicitudConexion",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

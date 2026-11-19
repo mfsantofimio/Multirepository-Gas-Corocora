@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_ConstruccionAcometida" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.28.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.21.0">
+  <bpmn:collaboration id="Collaboration_ConstruccionAcometida">
+    <bpmn:participant id="Participant_ConstruccionAcometida" name="GAS COROCORA - Construcción de acometida" processRef="Proceso_ConstruccionAcometida" />
+  </bpmn:collaboration>
+  <bpmn:process id="Proceso_ConstruccionAcometida" name="Construcción de Acometida e Instalación Interna" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:documentation>Subproceso invocado por Call Activity desde Conexión de Nuevos Usuarios.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_ConstruccionAcometida">
+      <bpmn:lane id="Lane_FirmaContratista" name="Firma contratista">
+        <bpmn:flowNodeRef>StartEvent_ObraAsignada</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_EjecutarObra</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_InspectorCalidad" name="Inspector de calidad">
+        <bpmn:flowNodeRef>Activity_InspeccionarInstalacion</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_InstalacionConforme</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_SistemaContratistas" name="Sistema de gestión de contratistas">
+        <bpmn:flowNodeRef>Activity_EmitirCertificado</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_ObraCertificada</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_ObraAsignada" name="Obra asignada">
+      <bpmn:outgoing>Flow_AsignadaAEjecutar</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Activity_EjecutarObra" name="Ejecutar obra de acometida" camunda:formRef="formEjecutarObra" camunda:formRefBinding="latest" camunda:candidateGroups="contratistas">
+      <bpmn:incoming>Flow_AsignadaAEjecutar</bpmn:incoming>
+      <bpmn:incoming>Flow_NoConforme</bpmn:incoming>
+      <bpmn:outgoing>Flow_EjecutarAInspeccionar</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_InspeccionarInstalacion" name="Inspeccionar instalación" camunda:formRef="formInspeccionarInstalacion" camunda:formRefBinding="latest" camunda:candidateGroups="inspectoresCalidad">
+      <bpmn:incoming>Flow_EjecutarAInspeccionar</bpmn:incoming>
+      <bpmn:outgoing>Flow_InspeccionarAConformidad</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_InstalacionConforme" name="¿Instalación conforme?">
+      <bpmn:incoming>Flow_InspeccionarAConformidad</bpmn:incoming>
+      <bpmn:outgoing>Flow_NoConforme</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Conforme</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Activity_EmitirCertificado" name="Emitir certificado de conformidad" camunda:class="com.gascorocora.implementations.conexion.EmitirCertificadoConformidadDelegate">
+      <bpmn:incoming>Flow_Conforme</bpmn:incoming>
+      <bpmn:outgoing>Flow_CertificadoAFin</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_ObraCertificada" name="Obra certificada">
+      <bpmn:incoming>Flow_CertificadoAFin</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_AsignadaAEjecutar" sourceRef="StartEvent_ObraAsignada" targetRef="Activity_EjecutarObra" />
+    <bpmn:sequenceFlow id="Flow_EjecutarAInspeccionar" sourceRef="Activity_EjecutarObra" targetRef="Activity_InspeccionarInstalacion" />
+    <bpmn:sequenceFlow id="Flow_InspeccionarAConformidad" sourceRef="Activity_InspeccionarInstalacion" targetRef="Gateway_InstalacionConforme" />
+    <bpmn:sequenceFlow id="Flow_NoConforme" name="No: corregir" sourceRef="Gateway_InstalacionConforme" targetRef="Activity_EjecutarObra">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!instalacionConforme}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Conforme" name="Sí" sourceRef="Gateway_InstalacionConforme" targetRef="Activity_EmitirCertificado">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${instalacionConforme}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_CertificadoAFin" sourceRef="Activity_EmitirCertificado" targetRef="End_ObraCertificada" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_ConstruccionAcometida">
+    <bpmndi:BPMNPlane id="BPMNPlane_ConstruccionAcometida" bpmnElement="Collaboration_ConstruccionAcometida">
+      <bpmndi:BPMNShape id="Participant_ConstruccionAcometida_di" bpmnElement="Participant_ConstruccionAcometida" isHorizontal="true">
+        <dc:Bounds x="150" y="80" width="950" height="450" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_FirmaContratista_di" bpmnElement="Lane_FirmaContratista" isHorizontal="true">
+        <dc:Bounds x="180" y="80" width="920" height="150" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_InspectorCalidad_di" bpmnElement="Lane_InspectorCalidad" isHorizontal="true">
+        <dc:Bounds x="180" y="230" width="920" height="150" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_SistemaContratistas_di" bpmnElement="Lane_SistemaContratistas" isHorizontal="true">
+        <dc:Bounds x="180" y="380" width="920" height="150" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_ObraAsignada_di" bpmnElement="StartEvent_ObraAsignada">
+        <dc:Bounds x="242" y="137" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="205" y="177" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_EjecutarObra_di" bpmnElement="Activity_EjecutarObra">
+        <dc:Bounds x="360" y="115" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_InspeccionarInstalacion_di" bpmnElement="Activity_InspeccionarInstalacion">
+        <dc:Bounds x="510" y="265" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_InstalacionConforme_di" bpmnElement="Gateway_InstalacionConforme" isMarkerVisible="true">
+        <dc:Bounds x="685" y="280" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="655" y="334" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_EmitirCertificado_di" bpmnElement="Activity_EmitirCertificado">
+        <dc:Bounds x="810" y="415" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_ObraCertificada_di" bpmnElement="End_ObraCertificada">
+        <dc:Bounds x="992" y="437" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="955" y="477" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_AsignadaAEjecutar_di" bpmnElement="Flow_AsignadaAEjecutar">
+        <di:waypoint x="278" y="155" />
+        <di:waypoint x="360" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EjecutarAInspeccionar_di" bpmnElement="Flow_EjecutarAInspeccionar">
+        <di:waypoint x="460" y="155" />
+        <di:waypoint x="485" y="155" />
+        <di:waypoint x="485" y="305" />
+        <di:waypoint x="510" y="305" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_InspeccionarAConformidad_di" bpmnElement="Flow_InspeccionarAConformidad">
+        <di:waypoint x="610" y="305" />
+        <di:waypoint x="685" y="305" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NoConforme_di" bpmnElement="Flow_NoConforme">
+        <di:waypoint x="710" y="280" />
+        <di:waypoint x="710" y="90" />
+        <di:waypoint x="410" y="90" />
+        <di:waypoint x="410" y="115" />
+        <bpmndi:BPMNLabel><dc:Bounds x="715" y="178" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Conforme_di" bpmnElement="Flow_Conforme">
+        <di:waypoint x="710" y="330" />
+        <di:waypoint x="710" y="455" />
+        <di:waypoint x="810" y="455" />
+        <bpmndi:BPMNLabel><dc:Bounds x="715" y="386" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CertificadoAFin_di" bpmnElement="Flow_CertificadoAFin">
+        <di:waypoint x="910" y="455" />
+        <di:waypoint x="992" y="455" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

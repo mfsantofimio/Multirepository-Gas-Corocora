@@ -1,0 +1,6 @@
+gas-corocora-hub
+gas-corocora-motor
+gas-corocora-recaudo
+gas-corocora-workers
+gas-corocora-portal-usuarios
+gas-corocora-portal-interno

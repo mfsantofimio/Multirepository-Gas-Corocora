@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Bandeja de tareas')}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('tareas')}"></div>
+<main>
+  <h1>Bandeja de tareas</h1>
+  <p class="sub"><span th:text="${total}">0</span> tareas para sus roles · <span th:text="${mias}">0</span> a su cargo</p>
+  <div th:replace="~{fragmentos :: avisos}"></div>
+  <p th:if="${instanciaAvanzada != null}">
+    <a class="btn sec peq" th:href="@{/casos/instancia/{pi}(pi=${instanciaAvanzada})}">Ver cómo quedó el caso</a>
+  </p>
+
+  <div class="tarjeta" th:if="${#maps.isEmpty(porProceso)}">
+    <div class="cuerpo"><p class="vacio">No hay tareas pendientes para sus roles.</p></div>
+  </div>
+
+  <div class="tarjeta grupo-tareas" th:each="g : ${porProceso}">
+    <div class="cab"><h2 th:text="${g.key}">Proceso</h2><span class="chip" th:text="${#lists.size(g.value)} + ' tareas'">0</span></div>
+    <div class="cuerpo tabla">
+      <table>
+        <thead><tr><th>Tarea</th><th>Creada</th><th>Vence</th><th>Responsable</th><th></th></tr></thead>
+        <tbody>
+          <tr th:each="t : ${g.value}">
+            <td><b th:text="${t.name}">Tarea</b><div class="pendiente" th:text="'Instancia ' + ${t.processInstanceId}">id</div></td>
+            <td th:text="${fmt.fecha(t.created)}">fecha</td>
+            <td th:text="${fmt.fecha(t.due)}">—</td>
+            <td>
+              <span th:if="${t.assignee == null}" class="chip info">Disponible</span>
+              <span th:if="${t.assignee != null and t.assignee == funcionario.usuario}" class="chip ok">A mi cargo</span>
+              <span th:if="${t.assignee != null and t.assignee != funcionario.usuario}" class="chip alerta" th:text="${t.assignee}">otro</span>
+            </td>
+            <td class="num"><a class="btn peq" th:href="@{/tareas/{id}(id=${t.id})}">Atender</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

@@ -1,0 +1,135 @@
+{
+  "components": [
+    {
+      "text": "# Diseño de la acometida",
+      "type": "text",
+      "layout": {
+        "row": "Row_formDisenarAcometida_01",
+        "columns": null
+      },
+      "id": "Field_formDisenarAcometida_01"
+    },
+    {
+      "label": "Número de solicitud",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formDisenarAcometida_02",
+        "columns": null
+      },
+      "id": "Field_formDisenarAcometida_02",
+      "key": "numeroSolicitud",
+      "disabled": true
+    },
+    {
+      "label": "Resultado de viabilidad",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formDisenarAcometida_03",
+        "columns": null
+      },
+      "id": "Field_formDisenarAcometida_03",
+      "key": "viabilidad",
+      "disabled": true
+    },
+    {
+      "label": "Distancia a la red (m)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formDisenarAcometida_04",
+        "columns": null
+      },
+      "id": "Field_formDisenarAcometida_04",
+      "key": "distanciaRedMetros",
+      "disabled": true
+    },
+    {
+      "label": "Diámetro de tubería",
+      "type": "select",
+      "layout": {
+        "row": "Row_formDisenarAcometida_05",
+        "columns": null
+      },
+      "id": "Field_formDisenarAcometida_05",
+      "key": "diametroTuberia",
+      "values": [
+        {
+          "label": "1/2\"",
+          "value": "1/2"
+        },
+        {
+          "label": "3/4\"",
+          "value": "3/4"
+        },
+        {
+          "label": "1\"",
+          "value": "1"
+        },
+        {
+          "label": "2\"",
+          "value": "2"
+        }
+      ],
+      "validate": {
+        "required": true
+      },
+      "defaultValue": "1/2"
+    },
+    {
+      "label": "Material",
+      "type": "select",
+      "layout": {
+        "row": "Row_formDisenarAcometida_06",
+        "columns": null
+      },
+      "id": "Field_formDisenarAcometida_06",
+      "key": "materialTuberia",
+      "values": [
+        {
+          "label": "Polietileno (PE)",
+          "value": "PE"
+        },
+        {
+          "label": "Acero",
+          "value": "ACERO"
+        }
+      ],
+      "validate": {
+        "required": true
+      },
+      "defaultValue": "PE"
+    },
+    {
+      "label": "Longitud de la acometida (m)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formDisenarAcometida_07",
+        "columns": null
+      },
+      "id": "Field_formDisenarAcometida_07",
+      "key": "longitudAcometidaMetros",
+      "validate": {
+        "required": true,
+        "min": 1
+      }
+    },
+    {
+      "label": "Observaciones del diseño",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formDisenarAcometida_08",
+        "columns": null
+      },
+      "id": "Field_formDisenarAcometida_08",
+      "key": "observacionesDiseno"
+    }
+  ],
+  "type": "default",
+  "id": "formDisenarAcometida",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

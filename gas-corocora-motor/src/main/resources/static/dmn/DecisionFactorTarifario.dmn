@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:camunda="http://camunda.org/schema/1.0/dmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_FactorTarifario" name="Factor tarifario por estrato" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.28.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.21.0">
+  <decision id="Decision_FactorTarifario" name="Determinar factor tarifario por estrato" camunda:historyTimeToLive="180">
+    <description>Porcentaje de subsidio (negativo) o contribución (positivo) que se aplica al valor del consumo. Supuestos académicos basados en los topes del art. 99 de la Ley 142 de 1994.</description>
+    <decisionTable id="DecisionTable_FactorTarifario" hitPolicy="UNIQUE">
+      <input id="Input_TipoUsuario" label="Tipo de usuario" camunda:inputVariable="tipoUsuario">
+        <inputExpression id="InputExpression_TipoUsuario" typeRef="string">
+          <text>tipoUsuario</text>
+        </inputExpression>
+        <inputValues id="UnaryTests_TipoUsuario">
+          <text>"RESIDENCIAL","COMERCIAL","INDUSTRIAL"</text>
+        </inputValues>
+      </input>
+      <input id="Input_Estrato" label="Estrato socioeconómico" camunda:inputVariable="estrato">
+        <inputExpression id="InputExpression_Estrato" typeRef="integer">
+          <text>estrato</text>
+        </inputExpression>
+      </input>
+      <output id="Output_PorcentajeAjuste" label="Porcentaje de ajuste (%)" name="porcentajeAjuste" typeRef="double" />
+      <rule id="Rule_Estrato1">
+        <description>Subsidio estrato 1</description>
+        <inputEntry id="UnaryTests_R1_Tipo"><text>"RESIDENCIAL"</text></inputEntry>
+        <inputEntry id="UnaryTests_R1_Estrato"><text>1</text></inputEntry>
+        <outputEntry id="LiteralExpression_R1"><text>-50</text></outputEntry>
+      </rule>
+      <rule id="Rule_Estrato2">
+        <description>Subsidio estrato 2</description>
+        <inputEntry id="UnaryTests_R2_Tipo"><text>"RESIDENCIAL"</text></inputEntry>
+        <inputEntry id="UnaryTests_R2_Estrato"><text>2</text></inputEntry>
+        <outputEntry id="LiteralExpression_R2"><text>-40</text></outputEntry>
+      </rule>
+      <rule id="Rule_Estrato3">
+        <description>Subsidio estrato 3</description>
+        <inputEntry id="UnaryTests_R3_Tipo"><text>"RESIDENCIAL"</text></inputEntry>
+        <inputEntry id="UnaryTests_R3_Estrato"><text>3</text></inputEntry>
+        <outputEntry id="LiteralExpression_R3"><text>-15</text></outputEntry>
+      </rule>
+      <rule id="Rule_Estrato4">
+        <description>Estrato 4 paga tarifa plena</description>
+        <inputEntry id="UnaryTests_R4_Tipo"><text>"RESIDENCIAL"</text></inputEntry>
+        <inputEntry id="UnaryTests_R4_Estrato"><text>4</text></inputEntry>
+        <outputEntry id="LiteralExpression_R4"><text>0</text></outputEntry>
+      </rule>
+      <rule id="Rule_Estrato5y6">
+        <description>Contribución estratos 5 y 6</description>
+        <inputEntry id="UnaryTests_R5_Tipo"><text>"RESIDENCIAL"</text></inputEntry>
+        <inputEntry id="UnaryTests_R5_Estrato"><text>[5..6]</text></inputEntry>
+        <outputEntry id="LiteralExpression_R5"><text>20</text></outputEntry>
+      </rule>
+      <rule id="Rule_Comercial">
+        <description>Contribución usuarios comerciales</description>
+        <inputEntry id="UnaryTests_R6_Tipo"><text>"COMERCIAL"</text></inputEntry>
+        <inputEntry id="UnaryTests_R6_Estrato"><text></text></inputEntry>
+        <outputEntry id="LiteralExpression_R6"><text>20</text></outputEntry>
+      </rule>
+      <rule id="Rule_Industrial">
+        <description>Industriales sin contribución (supuesto)</description>
+        <inputEntry id="UnaryTests_R7_Tipo"><text>"INDUSTRIAL"</text></inputEntry>
+        <inputEntry id="UnaryTests_R7_Estrato"><text></text></inputEntry>
+        <outputEntry id="LiteralExpression_R7"><text>0</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_FactorTarifario">
+      <dmndi:DMNShape id="DMNShape_FactorTarifario" dmnElementRef="Decision_FactorTarifario">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

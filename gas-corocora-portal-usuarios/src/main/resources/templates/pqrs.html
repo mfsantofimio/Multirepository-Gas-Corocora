@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Radicar PQRS')}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('pqrs')}"></div>
+<main>
+  <h1>Radicar petición, queja, reclamo o sugerencia</h1>
+  <p class="sub">Se iniciará el proceso <b>Atención al Usuario y PQRS</b>. La empresa debe responder en 15 días hábiles (art. 158 de la Ley 142 de 1994).</p>
+  <div class="tarjeta media">
+    <div class="cab"><h2>Datos de la solicitud</h2></div>
+    <div class="cuerpo">
+      <div th:replace="~{fragmentos :: avisos}"></div>
+      <form class="campos" th:action="@{/pqrs/nueva}" th:object="${form}" method="post">
+        <div class="dos">
+          <div class="campo" th:classappend="${#fields.hasErrors('numeroCuenta')} ? 'invalido'">
+            <label for="numeroCuenta">Cuenta de servicio</label>
+            <select id="numeroCuenta" th:field="*{numeroCuenta}" required>
+              <option th:each="c : ${cuentas}" th:value="${c.numeroCuenta}" th:text="${c.numeroCuenta} + ' · ' + ${fmt.texto(c.direccion)}">CTA-1001</option>
+            </select>
+            <div class="err" th:if="${#fields.hasErrors('numeroCuenta')}" th:errors="*{numeroCuenta}"></div>
+          </div>
+          <div class="campo" th:classappend="${#fields.hasErrors('tipoSolicitud')} ? 'invalido'">
+            <label for="tipoSolicitud">Tipo de solicitud</label>
+            <select id="tipoSolicitud" th:field="*{tipoSolicitud}" required>
+              <option th:each="t : ${catalogos.tiposPqrs}" th:value="${t.key}" th:text="${t.value}">Petición</option>
+            </select>
+            <div class="err" th:if="${#fields.hasErrors('tipoSolicitud')}" th:errors="*{tipoSolicitud}"></div>
+          </div>
+        </div>
+        <div class="campo" th:classappend="${#fields.hasErrors('valorReclamado')} ? 'invalido'" style="max-width:300px">
+          <label for="valorReclamado">Valor reclamado (COP)</label>
+          <input type="number" id="valorReclamado" th:field="*{valorReclamado}" min="0" step="1">
+          <div class="ayuda">Obligatorio solo para reclamos por cobros de la factura.</div>
+          <div class="err" th:if="${#fields.hasErrors('valorReclamado')}" th:errors="*{valorReclamado}"></div>
+        </div>
+        <div class="campo" th:classappend="${#fields.hasErrors('descripcion')} ? 'invalido'">
+          <label for="descripcion">Descripción</label>
+          <textarea id="descripcion" th:field="*{descripcion}" minlength="10" maxlength="1000" required></textarea>
+          <div class="err" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
+        </div>
+        <div class="acciones">
+          <button class="btn" type="submit">Radicar</button>
+          <a class="btn sec" th:href="@{/panel}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

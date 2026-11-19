@@ -1,0 +1,96 @@
+{
+  "components": [
+    {
+      "text": "# Escalar incumplimiento del contratista\nEl plazo de obra venció y la construcción fue cancelada.",
+      "type": "text",
+      "layout": {
+        "row": "Row_formEscalarIncumplimiento_01",
+        "columns": null
+      },
+      "id": "Field_formEscalarIncumplimiento_01"
+    },
+    {
+      "label": "Número de solicitud",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formEscalarIncumplimiento_02",
+        "columns": null
+      },
+      "id": "Field_formEscalarIncumplimiento_02",
+      "key": "numeroSolicitud",
+      "disabled": true
+    },
+    {
+      "label": "Contrato",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formEscalarIncumplimiento_03",
+        "columns": null
+      },
+      "id": "Field_formEscalarIncumplimiento_03",
+      "key": "numeroContrato",
+      "disabled": true
+    },
+    {
+      "label": "Solicitante",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formEscalarIncumplimiento_04",
+        "columns": null
+      },
+      "id": "Field_formEscalarIncumplimiento_04",
+      "key": "nombreSolicitante",
+      "disabled": true
+    },
+    {
+      "label": "Acción correctiva",
+      "type": "select",
+      "layout": {
+        "row": "Row_formEscalarIncumplimiento_05",
+        "columns": null
+      },
+      "id": "Field_formEscalarIncumplimiento_05",
+      "key": "accionCorrectiva",
+      "values": [
+        {
+          "label": "Multa al contratista",
+          "value": "MULTA_CONTRATISTA"
+        },
+        {
+          "label": "Reasignar contratista",
+          "value": "REASIGNAR_CONTRATISTA"
+        },
+        {
+          "label": "Ampliar plazo",
+          "value": "AMPLIAR_PLAZO"
+        }
+      ],
+      "validate": {
+        "required": true
+      },
+      "defaultValue": "REASIGNAR_CONTRATISTA"
+    },
+    {
+      "label": "Justificación",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formEscalarIncumplimiento_06",
+        "columns": null
+      },
+      "id": "Field_formEscalarIncumplimiento_06",
+      "key": "observacionesEscalamiento",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "formEscalarIncumplimiento",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

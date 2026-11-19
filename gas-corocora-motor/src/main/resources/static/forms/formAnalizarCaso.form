@@ -1,0 +1,127 @@
+{
+  "components": [
+    {
+      "text": "# Analizar caso y proyectar respuesta\nRevise histórico de consumo, lecturas y facturación antes de responder.",
+      "type": "text",
+      "layout": {
+        "row": "Row_formAnalizarCaso_01",
+        "columns": null
+      },
+      "id": "Field_formAnalizarCaso_01"
+    },
+    {
+      "label": "Número de radicado",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formAnalizarCaso_02",
+        "columns": null
+      },
+      "id": "Field_formAnalizarCaso_02",
+      "key": "numeroRadicado",
+      "disabled": true
+    },
+    {
+      "label": "Tipo de solicitud",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formAnalizarCaso_03",
+        "columns": null
+      },
+      "id": "Field_formAnalizarCaso_03",
+      "key": "tipoSolicitud",
+      "disabled": true
+    },
+    {
+      "label": "Usuario",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formAnalizarCaso_04",
+        "columns": null
+      },
+      "id": "Field_formAnalizarCaso_04",
+      "key": "nombreUsuario",
+      "disabled": true
+    },
+    {
+      "label": "Valor reclamado (COP)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formAnalizarCaso_05",
+        "columns": null
+      },
+      "id": "Field_formAnalizarCaso_05",
+      "key": "valorReclamado",
+      "disabled": true
+    },
+    {
+      "label": "Descripción",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formAnalizarCaso_06",
+        "columns": null
+      },
+      "id": "Field_formAnalizarCaso_06",
+      "key": "descripcion",
+      "disabled": true
+    },
+    {
+      "label": "Fecha límite legal de respuesta",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formAnalizarCaso_07",
+        "columns": null
+      },
+      "id": "Field_formAnalizarCaso_07",
+      "key": "fechaLimiteRespuesta",
+      "disabled": true
+    },
+    {
+      "label": "Respuesta de fondo al usuario",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formAnalizarCaso_08",
+        "columns": null
+      },
+      "id": "Field_formAnalizarCaso_08",
+      "key": "respuestaUsuario",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "¿Procede ajuste a la factura?",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_formAnalizarCaso_09",
+        "columns": null
+      },
+      "id": "Field_formAnalizarCaso_09",
+      "key": "procedeAjuste",
+      "defaultValue": false
+    },
+    {
+      "label": "Valor del ajuste (COP)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formAnalizarCaso_10",
+        "columns": null
+      },
+      "id": "Field_formAnalizarCaso_10",
+      "key": "valorAjuste",
+      "validate": {
+        "required": false,
+        "min": 0
+      },
+      "defaultValue": 0
+    }
+  ],
+  "type": "default",
+  "id": "formAnalizarCaso",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}

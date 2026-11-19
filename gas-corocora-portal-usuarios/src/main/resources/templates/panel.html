@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Mis trámites')}"></head>
+<body>
+<div th:replace="~{fragmentos :: barra('panel')}"></div>
+<main>
+  <h1>Mis trámites</h1>
+  <p class="sub">Estado de sus solicitudes, facturas y PQRS. Los botones aparecen cuando el proceso está esperando una acción suya.</p>
+  <div th:replace="~{fragmentos :: avisos}"></div>
+
+  <div class="tarjeta" th:if="${suscriptor != null}">
+    <div class="cab"><h2>Mis datos y cuentas de servicio</h2></div>
+    <div class="cuerpo">
+      <div class="rejilla">
+        <div class="dato">Documento<b th:text="${suscriptor.documento}">1122334455</b></div>
+        <div class="dato">Correo<b th:text="${suscriptor.email}">correo</b></div>
+        <div class="dato">Celular<b th:text="${suscriptor.telefono}">310</b></div>
+        <div class="dato">Dirección<b th:text="${suscriptor.direccion}">dir</b></div>
+      </div>
+      <div class="tabla" style="margin-top:14px" th:if="${not #lists.isEmpty(suscriptor.cuentas)}">
+        <table>
+          <tr><th>Cuenta</th><th>Tipo</th><th>Estrato</th><th>Dirección</th><th class="num">Última lectura (m³)</th><th>Estado</th></tr>
+          <tr th:each="c : ${suscriptor.cuentas}">
+            <td><b th:text="${c.numeroCuenta}">CTA-1001</b></td>
+            <td th:text="${fmt.texto(c.tipoUsuario)}">RESIDENCIAL</td>
+            <td th:text="${fmt.texto(c.estrato)}">2</td>
+            <td th:text="${fmt.texto(c.direccion)}">dir</td>
+            <td class="num" th:text="${fmt.texto(c.ultimaLectura)}">1000</td>
+            <td><span th:class="${fmt.claseEstado(c.estado)}" th:text="${c.estado}">ACTIVA</span></td>
+          </tr>
+        </table>
+      </div>
+      <p class="vacio" th:if="${#lists.isEmpty(suscriptor.cuentas)}">Todavía no tiene cuentas de servicio. Cuando su conexión quede habilitada aparecerá aquí.</p>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+    <div class="cab"><h2>Solicitudes de conexión</h2><a class="btn peq" th:href="@{/conexion/nueva}">Nueva solicitud</a></div>
+    <div class="cuerpo tabla">
+      <p class="vacio" th:if="${solicitudes == null or #lists.isEmpty(solicitudes)}">No tiene solicitudes de conexión.</p>
+      <table th:if="${solicitudes != null and not #lists.isEmpty(solicitudes)}">
+        <tr><th>Solicitud</th><th>Predio</th><th>Viabilidad</th><th class="num">Cotización</th><th>Estado</th><th>En curso</th><th></th></tr>
+        <tr th:each="s : ${solicitudes}">
+          <td><a th:href="@{/tramites/{r}(r=${s.numeroSolicitud})}" th:text="${s.numeroSolicitud}">CON-1</a><div class="pendiente" th:text="${s.fechaCreacion}"></div></td>
+          <td th:text="${fmt.texto(s.direccionPredio)}">dir</td>
+          <td th:text="${fmt.texto(s.viabilidad)}">VIABLE</td>
+          <td class="num" th:text="${fmt.cop(s.valorCotizacion)}">$0</td>
+          <td><span th:class="${fmt.claseEstado(s.estado)}" th:text="${fmt.estado(s.estado)}">Radicada</span></td>
+          <td class="pendiente"><span th:each="t : ${s.tareasPendientes}" th:text="${t.nombre}" style="display:block">Tarea</span>
+            <span th:if="${#lists.isEmpty(s.tareasPendientes)}" th:text="${fmt.estado(s.estadoProceso)}">En curso</span></td>
+          <td>
+            <form th:if="${s.accionesUsuario != null and #lists.contains(s.accionesUsuario, 'FIRMAR_CONTRATO')}" th:action="@{/conexion/{n}/firmar(n=${s.numeroSolicitud})}" method="post">
+              <button class="btn peq" type="submit" onclick="return confirm('¿Confirma la firma del contrato de condiciones uniformes?')">Firmar contrato</button>
+            </form>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+    <div class="cab"><h2>Facturas</h2></div>
+    <div class="cuerpo tabla">
+      <p class="vacio" th:if="${facturas == null or #lists.isEmpty(facturas)}">No tiene facturas emitidas.</p>
+      <table th:if="${facturas != null and not #lists.isEmpty(facturas)}">
+        <tr><th>Factura</th><th>Cuenta</th><th class="num">Consumo (m³)</th><th class="num">Total</th><th>Vence</th><th>Referencia de pago</th><th>Estado</th><th></th></tr>
+        <tr th:each="f : ${facturas}">
+          <td><a th:href="@{/tramites/{r}(r=${f.numeroFactura})}" th:text="${f.numeroFactura}">FAC-1</a></td>
+          <td th:text="${f.numeroCuenta}">CTA-1001</td>
+          <td class="num" th:text="${fmt.texto(f.consumoM3)}">21</td>
+          <td class="num" th:text="${fmt.cop(f.totalPagar)}">$0</td>
+          <td th:text="${fmt.texto(f.fechaLimitePago)}">2026-12-01</td>
+          <td th:text="${fmt.texto(f.referenciaPago)}">RP-1</td>
+          <td><span th:class="${fmt.claseEstado(f.estado)}" th:text="${fmt.estado(f.estado)}">Pendiente</span></td>
+          <td><a class="btn peq" th:if="${f.accionesUsuario != null and #lists.contains(f.accionesUsuario, 'PAGAR')}" th:href="@{/facturas/{n}/pagar(n=${f.numeroFactura})}">Pagar</a></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+    <div class="cab"><h2>Peticiones, quejas, reclamos y sugerencias</h2><a class="btn peq" th:href="@{/pqrs/nueva}">Radicar PQRS</a></div>
+    <div class="cuerpo tabla">
+      <p class="vacio" th:if="${pqrs == null or #lists.isEmpty(pqrs)}">No tiene PQRS radicadas.</p>
+      <table th:if="${pqrs != null and not #lists.isEmpty(pqrs)}">
+        <tr><th>Radicado</th><th>Tipo</th><th>Cuenta</th><th>Responder antes de</th><th>Estado</th><th>Respuesta</th><th></th></tr>
+        <tr th:each="p : ${pqrs}">
+          <td><a th:href="@{/tramites/{r}(r=${p.numeroRadicado})}" th:text="${p.numeroRadicado}">PQRS-1</a></td>
+          <td th:text="${fmt.texto(p.tipoSolicitud)}">RECLAMO</td>
+          <td th:text="${p.numeroCuenta}">CTA-1001</td>
+          <td th:text="${fmt.texto(p.fechaLimiteRespuesta)}">2026-12-09</td>
+          <td><span th:class="${fmt.claseEstado(p.estado)}" th:text="${fmt.estado(p.estado)}">Radicada</span></td>
+          <td style="max-width:320px" th:text="${fmt.texto(p.respuesta)}">—</td>
+          <td>
+            <details class="recurso" th:if="${p.accionesUsuario != null and #lists.contains(p.accionesUsuario, 'INTERPONER_RECURSO')}">
+              <summary>Interponer recurso</summary>
+              <form th:action="@{/pqrs/{r}/recurso(r=${p.numeroRadicado})}" method="post">
+                <textarea name="motivoRecurso" minlength="10" maxlength="1000" required placeholder="Explique por qué no está de acuerdo con la decisión"></textarea>
+                <button class="btn peq" type="submit">Enviar recurso</button>
+              </form>
+            </details>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

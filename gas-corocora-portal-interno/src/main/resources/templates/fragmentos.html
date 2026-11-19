@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="cabeza(titulo)">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${titulo} + ' · Portal interno Gas Corocora'">Portal interno</title>
+  <link rel="stylesheet" th:href="@{/css/portal.css}">
+</head>
+<body>
+
+<div th:fragment="barra(activo)">
+  <div class="barra">
+    <div class="contenido">
+      <a class="marca" th:href="@{/}">
+        <span class="llama">GC</span>
+        <span><strong>Gas Corocora S.A. E.S.P.</strong><small>Portal interno · Atención de tareas por rol</small></span>
+      </a>
+      <div class="sesion" th:if="${funcionario != null}">
+        <span>
+          <span th:text="${funcionario.nombre}">Funcionario</span>
+          <span class="roles" th:text="'(' + ${#strings.listJoin(funcionario.nombresGrupos, ', ')} + ')'">(roles)</span>
+        </span>
+        <form th:action="@{/salir}" method="post"><button class="btn peq claro" type="submit">Salir</button></form>
+      </div>
+    </div>
+  </div>
+  <nav class="menu" th:if="${funcionario != null}">
+    <div class="contenido">
+      <a th:href="@{/tareas}" th:classappend="${activo == 'tareas'} ? 'activo'">Bandeja de tareas</a>
+      <a th:href="@{/procesos}" th:classappend="${activo == 'procesos'} ? 'activo'">Iniciar proceso</a>
+      <a th:href="@{/casos}" th:classappend="${activo == 'casos'} ? 'activo'">Casos</a>
+    </div>
+  </nav>
+</div>
+
+<div th:fragment="avisos">
+  <div class="aviso ok" th:if="${exito != null}" th:text="${exito}">Éxito</div>
+  <div class="aviso error" th:if="${error != null}" th:text="${error}">Error</div>
+</div>
+
+<!-- Dibuja los componentes de un Camunda Form (lista de CampoFormulario) -->
+<div th:fragment="campos(campos)" th:remove="tag">
+  <th:block th:each="c : ${campos}">
+    <div th:if="${c.tipo == 'text'}">
+      <p class="titulo-form" th:text="${c.titulo}">Título</p>
+      <p class="parrafo-form" th:if="${!#strings.isEmpty(c.parrafo)}" th:text="${c.parrafo}">Texto</p>
+    </div>
+    <div class="campo" th:if="${c.tipo != 'text'}" th:classappend="${c.error != null} ? 'invalido'">
+      <th:block th:switch="${c.tipo}">
+        <label th:case="'checkbox'" class="casilla">
+          <input type="checkbox" th:name="${c.llave}" value="true" th:checked="${c.marcado}" th:disabled="${c.deshabilitado}">
+          <span th:text="${c.etiqueta}">Casilla</span>
+        </label>
+        <th:block th:case="'textarea'">
+          <label th:for="${'f_' + c.llave}" th:text="${c.etiqueta + (c.requerido ? ' *' : '')}">Etiqueta</label>
+          <textarea th:id="${'f_' + c.llave}" th:name="${c.llave}" th:text="${c.valor}"
+                    th:disabled="${c.deshabilitado}" th:required="${c.requerido and !c.deshabilitado}"></textarea>
+        </th:block>
+        <th:block th:case="'select'">
+          <label th:for="${'f_' + c.llave}" th:text="${c.etiqueta + (c.requerido ? ' *' : '')}">Etiqueta</label>
+          <select th:id="${'f_' + c.llave}" th:name="${c.llave}" th:disabled="${c.deshabilitado}"
+                  th:required="${c.requerido and !c.deshabilitado}">
+            <option value="">— Seleccione —</option>
+            <option th:each="o : ${c.opciones}" th:value="${o.valor}" th:text="${o.etiqueta}"
+                    th:selected="${o.valor == c.valor}">Opción</option>
+          </select>
+        </th:block>
+        <th:block th:case="'number'">
+          <label th:for="${'f_' + c.llave}" th:text="${c.etiqueta + (c.requerido ? ' *' : '')}">Etiqueta</label>
+          <input type="number" step="any" th:id="${'f_' + c.llave}" th:name="${c.llave}" th:value="${c.valor}"
+                 th:attr="min=${c.minimo},max=${c.maximo}"
+                 th:disabled="${c.deshabilitado}" th:required="${c.requerido and !c.deshabilitado}">
+        </th:block>
+        <th:block th:case="*">
+          <label th:for="${'f_' + c.llave}" th:text="${c.etiqueta + (c.requerido ? ' *' : '')}">Etiqueta</label>
+          <input type="text" th:id="${'f_' + c.llave}" th:name="${c.llave}" th:value="${c.valor}"
+                 th:attr="pattern=${c.patron}"
+                 th:disabled="${c.deshabilitado}" th:required="${c.requerido and !c.deshabilitado}">
+        </th:block>
+      </th:block>
+      <div class="ayuda" th:if="${c.descripcion != null}" th:text="${c.descripcion}">Ayuda</div>
+      <div class="err" th:if="${c.error != null}" th:text="${c.error}">Error</div>
+    </div>
+  </th:block>
+</div>
+
+<footer th:fragment="pie">Gas Corocora S.A. E.S.P. — portal interno del proyecto académico de Software Basado en Procesos de Negocio</footer>
+
+</body>
+</html>

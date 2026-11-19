@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_AtencionPqrs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.28.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.21.0">
+  <bpmn:collaboration id="Collaboration_AtencionPqrs">
+    <bpmn:participant id="Participant_AtencionPqrs" name="GAS COROCORA - Atención al Usuario y PQRS" processRef="Proceso_AtencionPqrs" />
+    <bpmn:participant id="Participant_UsuarioPqrs" name="Usuario / Peticionario" />
+    <bpmn:participant id="Participant_Sspd" name="Superintendencia de Servicios Públicos (SSPD)" />
+    <bpmn:messageFlow id="MessageFlow_RespuestaPqrs" name="Respuesta de fondo" sourceRef="Activity_NotificarRespuesta" targetRef="Participant_UsuarioPqrs" />
+    <bpmn:messageFlow id="MessageFlow_RecursoReposicion" name="Recurso" sourceRef="Participant_UsuarioPqrs" targetRef="Event_RecursoPresentado" />
+    <bpmn:messageFlow id="MessageFlow_RemisionSspd" name="Expediente" sourceRef="Event_RemitirExpedienteSspd" targetRef="Participant_Sspd" />
+  </bpmn:collaboration>
+  <bpmn:process id="Proceso_AtencionPqrs" name="Atención al Usuario y PQRS" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:documentation>P6 del portafolio. Radica la PQRS, la clasifica con DMN, controla el término legal con un timer no interruptor, notifica la respuesta (External Task JS) y gestiona el recurso.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_AtencionPqrs">
+      <bpmn:lane id="Lane_AgenteServicio" name="Agente de servicio al cliente">
+        <bpmn:flowNodeRef>StartEvent_PqrsRecibida</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_ResponderPrimerContacto</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_RecursoPresentado</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_AnalistaPqrs" name="Analista de PQRS">
+        <bpmn:flowNodeRef>Activity_AnalizarCaso</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_AlertaTerminoLegal</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_UnirAtencion</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ProcedeAjuste</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>CallActivity_AjustarFactura</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_UnirAjuste</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_ResolverRecurso</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_DecisionRecurso</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_RecursoAFavor</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_SistemaCrm" name="Sistema CRM">
+        <bpmn:flowNodeRef>Activity_RadicarPqrs</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_ClasificarPqrs</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_RutaAtencion</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_EnviarAlertaVencimiento</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_AlertaEnviada</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_NotificarRespuesta</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_EsperarRecurso</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_TerminoRecursoVencido</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_PqrsCerrada</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_RemitirExpedienteSspd</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_ExpedienteRemitido</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_PqrsRecibida" name="PQRS recibida" camunda:formRef="formRadicarPqrs" camunda:formRefBinding="latest" camunda:initiator="iniciador">
+      <bpmn:outgoing>Flow_PqrsARadicar</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_RadicarPqrs" name="Radicar PQRS y calcular término legal" camunda:class="com.gascorocora.implementations.pqrs.RadicarPqrsDelegate">
+      <bpmn:incoming>Flow_PqrsARadicar</bpmn:incoming>
+      <bpmn:outgoing>Flow_RadicarAClasificar</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:businessRuleTask id="Activity_ClasificarPqrs" name="Clasificar ruta de atención" camunda:decisionRef="Decision_RutaAtencionPqrs" camunda:decisionRefBinding="latest" camunda:resultVariable="rutaAtencion" camunda:mapDecisionResult="singleEntry">
+      <bpmn:incoming>Flow_RadicarAClasificar</bpmn:incoming>
+      <bpmn:outgoing>Flow_ClasificarARuta</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:exclusiveGateway id="Gateway_RutaAtencion" name="¿Ruta de atención?">
+      <bpmn:incoming>Flow_ClasificarARuta</bpmn:incoming>
+      <bpmn:outgoing>Flow_RutaPrimerContacto</bpmn:outgoing>
+      <bpmn:outgoing>Flow_RutaAnalisis</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_ResponderPrimerContacto" name="Responder en primer contacto" camunda:formRef="formResponderPrimerContacto" camunda:formRefBinding="latest" camunda:candidateGroups="agentesServicio">
+      <bpmn:incoming>Flow_RutaPrimerContacto</bpmn:incoming>
+      <bpmn:outgoing>Flow_PrimerContactoAUnir</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_AnalizarCaso" name="Analizar caso y proyectar respuesta" camunda:formRef="formAnalizarCaso" camunda:formRefBinding="latest" camunda:candidateGroups="analistasPqrs">
+      <bpmn:incoming>Flow_RutaAnalisis</bpmn:incoming>
+      <bpmn:outgoing>Flow_AnalisisAUnir</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:boundaryEvent id="Event_AlertaTerminoLegal" name="Término legal próximo a vencer" attachedToRef="Activity_AnalizarCaso" cancelActivity="false">
+      <bpmn:outgoing>Flow_AlertaAEnviar</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_AlertaTermino">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">${plazosProceso.alertaTerminoPqrs}</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Activity_EnviarAlertaVencimiento" name="Enviar alerta de vencimiento al jefe" camunda:delegateExpression="#{alertaVencimientoDelegate}">
+      <bpmn:incoming>Flow_AlertaAEnviar</bpmn:incoming>
+      <bpmn:outgoing>Flow_AlertaAFin</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_AlertaEnviada" name="Alerta enviada">
+      <bpmn:incoming>Flow_AlertaAFin</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Gateway_UnirAtencion" name="">
+      <bpmn:incoming>Flow_PrimerContactoAUnir</bpmn:incoming>
+      <bpmn:incoming>Flow_AnalisisAUnir</bpmn:incoming>
+      <bpmn:outgoing>Flow_UnirAProcedeAjuste</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_ProcedeAjuste" name="¿Procede ajuste a la factura?">
+      <bpmn:incoming>Flow_UnirAProcedeAjuste</bpmn:incoming>
+      <bpmn:outgoing>Flow_AjusteSi</bpmn:outgoing>
+      <bpmn:outgoing>Flow_AjusteNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="CallActivity_AjustarFactura" name="Ajustar factura" calledElement="Proceso_AjusteFactura" camunda:calledElementBinding="latest">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_AjusteSi</bpmn:incoming>
+      <bpmn:outgoing>Flow_AjustarAUnir</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="Gateway_UnirAjuste" name="">
+      <bpmn:incoming>Flow_AjusteNo</bpmn:incoming>
+      <bpmn:incoming>Flow_AjustarAUnir</bpmn:incoming>
+      <bpmn:outgoing>Flow_UnirANotificar</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Activity_NotificarRespuesta" name="Notificar respuesta al usuario" camunda:type="external" camunda:topic="NotificarRespuestaPqrs">
+      <bpmn:incoming>Flow_UnirANotificar</bpmn:incoming>
+      <bpmn:outgoing>Flow_NotificarAEsperar</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:eventBasedGateway id="Gateway_EsperarRecurso" name="¿Usuario interpone recurso?">
+      <bpmn:incoming>Flow_NotificarAEsperar</bpmn:incoming>
+      <bpmn:outgoing>Flow_EsperarARecurso</bpmn:outgoing>
+      <bpmn:outgoing>Flow_EsperarATermino</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:intermediateCatchEvent id="Event_RecursoPresentado" name="Recurso de reposición recibido">
+      <bpmn:incoming>Flow_EsperarARecurso</bpmn:incoming>
+      <bpmn:outgoing>Flow_RecursoAResolver</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_RecursoReposicion" messageRef="Message_RecursoReposicion" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="Event_TerminoRecursoVencido" name="Término para recurso vencido">
+      <bpmn:incoming>Flow_EsperarATermino</bpmn:incoming>
+      <bpmn:outgoing>Flow_TerminoACerrar</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_TerminoRecurso">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">${plazosProceso.terminoRecursoPqrs}</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="End_PqrsCerrada" name="PQRS cerrada en firme">
+      <bpmn:incoming>Flow_TerminoACerrar</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Activity_ResolverRecurso" name="Resolver recurso de reposición" camunda:formRef="formResolverRecurso" camunda:formRefBinding="latest" camunda:candidateGroups="analistasPqrs">
+      <bpmn:incoming>Flow_RecursoAResolver</bpmn:incoming>
+      <bpmn:outgoing>Flow_ResolverADecision</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_DecisionRecurso" name="¿Se confirma la decisión?">
+      <bpmn:incoming>Flow_ResolverADecision</bpmn:incoming>
+      <bpmn:outgoing>Flow_DecisionConfirmada</bpmn:outgoing>
+      <bpmn:outgoing>Flow_DecisionRevocada</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:intermediateThrowEvent id="Event_RemitirExpedienteSspd" name="Remitir expediente a la SSPD">
+      <bpmn:incoming>Flow_DecisionConfirmada</bpmn:incoming>
+      <bpmn:outgoing>Flow_RemitirAFin</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_RemisionSspd" messageRef="Message_RemisionSspd" camunda:class="com.gascorocora.implementations.pqrs.RemitirExpedienteSspdDelegate" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:endEvent id="End_ExpedienteRemitido" name="Expediente en apelación">
+      <bpmn:incoming>Flow_RemitirAFin</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="End_RecursoAFavor" name="Recurso resuelto a favor">
+      <bpmn:incoming>Flow_DecisionRevocada</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_PqrsARadicar" sourceRef="StartEvent_PqrsRecibida" targetRef="Activity_RadicarPqrs" />
+    <bpmn:sequenceFlow id="Flow_RadicarAClasificar" sourceRef="Activity_RadicarPqrs" targetRef="Activity_ClasificarPqrs" />
+    <bpmn:sequenceFlow id="Flow_ClasificarARuta" sourceRef="Activity_ClasificarPqrs" targetRef="Gateway_RutaAtencion" />
+    <bpmn:sequenceFlow id="Flow_RutaPrimerContacto" name="Primer contacto" sourceRef="Gateway_RutaAtencion" targetRef="Activity_ResponderPrimerContacto">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${rutaAtencion == 'RESPUESTA_INMEDIATA'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_RutaAnalisis" name="Análisis técnico" sourceRef="Gateway_RutaAtencion" targetRef="Activity_AnalizarCaso">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${rutaAtencion != 'RESPUESTA_INMEDIATA'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_AlertaAEnviar" sourceRef="Event_AlertaTerminoLegal" targetRef="Activity_EnviarAlertaVencimiento" />
+    <bpmn:sequenceFlow id="Flow_AlertaAFin" sourceRef="Activity_EnviarAlertaVencimiento" targetRef="End_AlertaEnviada" />
+    <bpmn:sequenceFlow id="Flow_PrimerContactoAUnir" sourceRef="Activity_ResponderPrimerContacto" targetRef="Gateway_UnirAtencion" />
+    <bpmn:sequenceFlow id="Flow_AnalisisAUnir" sourceRef="Activity_AnalizarCaso" targetRef="Gateway_UnirAtencion" />
+    <bpmn:sequenceFlow id="Flow_UnirAProcedeAjuste" sourceRef="Gateway_UnirAtencion" targetRef="Gateway_ProcedeAjuste" />
+    <bpmn:sequenceFlow id="Flow_AjusteSi" name="Sí" sourceRef="Gateway_ProcedeAjuste" targetRef="CallActivity_AjustarFactura">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${procedeAjuste}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_AjusteNo" name="No" sourceRef="Gateway_ProcedeAjuste" targetRef="Gateway_UnirAjuste">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!procedeAjuste}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_AjustarAUnir" sourceRef="CallActivity_AjustarFactura" targetRef="Gateway_UnirAjuste" />
+    <bpmn:sequenceFlow id="Flow_UnirANotificar" sourceRef="Gateway_UnirAjuste" targetRef="Activity_NotificarRespuesta" />
+    <bpmn:sequenceFlow id="Flow_NotificarAEsperar" sourceRef="Activity_NotificarRespuesta" targetRef="Gateway_EsperarRecurso" />
+    <bpmn:sequenceFlow id="Flow_EsperarARecurso" sourceRef="Gateway_EsperarRecurso" targetRef="Event_RecursoPresentado" />
+    <bpmn:sequenceFlow id="Flow_EsperarATermino" sourceRef="Gateway_EsperarRecurso" targetRef="Event_TerminoRecursoVencido" />
+    <bpmn:sequenceFlow id="Flow_TerminoACerrar" sourceRef="Event_TerminoRecursoVencido" targetRef="End_PqrsCerrada" />
+    <bpmn:sequenceFlow id="Flow_RecursoAResolver" sourceRef="Event_RecursoPresentado" targetRef="Activity_ResolverRecurso" />
+    <bpmn:sequenceFlow id="Flow_ResolverADecision" sourceRef="Activity_ResolverRecurso" targetRef="Gateway_DecisionRecurso" />
+    <bpmn:sequenceFlow id="Flow_DecisionConfirmada" name="Sí, se confirma" sourceRef="Gateway_DecisionRecurso" targetRef="Event_RemitirExpedienteSspd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${decisionConfirmada}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_DecisionRevocada" name="No, se revoca" sourceRef="Gateway_DecisionRecurso" targetRef="End_RecursoAFavor">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!decisionConfirmada}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_RemitirAFin" sourceRef="Event_RemitirExpedienteSspd" targetRef="End_ExpedienteRemitido" />
+    <bpmn:textAnnotation id="TextAnnotation_TimerPqrs">
+      <bpmn:text>Timer NO interruptor: alerta sin cancelar el análisis (demo PT2M)</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_TextAnnotation_TimerPqrs" sourceRef="Activity_AnalizarCaso" targetRef="TextAnnotation_TimerPqrs" />
+  </bpmn:process>
+  <bpmn:message id="Message_RecursoReposicion" name="MensajeRecursoReposicion" />
+  <bpmn:message id="Message_RemisionSspd" name="MensajeRemisionSspd" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_AtencionPqrs">
+    <bpmndi:BPMNPlane id="BPMNPlane_AtencionPqrs" bpmnElement="Collaboration_AtencionPqrs">
+      <bpmndi:BPMNShape id="Participant_AtencionPqrs_di" bpmnElement="Participant_AtencionPqrs" isHorizontal="true">
+        <dc:Bounds x="150" y="190" width="2450" height="530" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_AgenteServicio_di" bpmnElement="Lane_AgenteServicio" isHorizontal="true">
+        <dc:Bounds x="180" y="190" width="2420" height="170" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_AnalistaPqrs_di" bpmnElement="Lane_AnalistaPqrs" isHorizontal="true">
+        <dc:Bounds x="180" y="360" width="2420" height="190" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_SistemaCrm_di" bpmnElement="Lane_SistemaCrm" isHorizontal="true">
+        <dc:Bounds x="180" y="550" width="2420" height="170" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_UsuarioPqrs_di" bpmnElement="Participant_UsuarioPqrs" isHorizontal="true">
+        <dc:Bounds x="150" y="80" width="2450" height="60" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_Sspd_di" bpmnElement="Participant_Sspd" isHorizontal="true">
+        <dc:Bounds x="150" y="770" width="2450" height="60" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_PqrsRecibida_di" bpmnElement="StartEvent_PqrsRecibida">
+        <dc:Bounds x="242" y="257" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="205" y="297" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_RadicarPqrs_di" bpmnElement="Activity_RadicarPqrs">
+        <dc:Bounds x="360" y="595" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ClasificarPqrs_di" bpmnElement="Activity_ClasificarPqrs">
+        <dc:Bounds x="510" y="595" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_RutaAtencion_di" bpmnElement="Gateway_RutaAtencion" isMarkerVisible="true">
+        <dc:Bounds x="685" y="610" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="655" y="664" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ResponderPrimerContacto_di" bpmnElement="Activity_ResponderPrimerContacto">
+        <dc:Bounds x="810" y="235" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_AnalizarCaso_di" bpmnElement="Activity_AnalizarCaso">
+        <dc:Bounds x="810" y="415" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_AlertaTerminoLegal_di" bpmnElement="Event_AlertaTerminoLegal">
+        <dc:Bounds x="870" y="477" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="833" y="517" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_EnviarAlertaVencimiento_di" bpmnElement="Activity_EnviarAlertaVencimiento">
+        <dc:Bounds x="960" y="595" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_AlertaEnviada_di" bpmnElement="End_AlertaEnviada">
+        <dc:Bounds x="1142" y="617" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1105" y="657" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_UnirAtencion_di" bpmnElement="Gateway_UnirAtencion" isMarkerVisible="true">
+        <dc:Bounds x="985" y="430" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="955" y="484" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ProcedeAjuste_di" bpmnElement="Gateway_ProcedeAjuste" isMarkerVisible="true">
+        <dc:Bounds x="1135" y="430" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1105" y="484" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CallActivity_AjustarFactura_di" bpmnElement="CallActivity_AjustarFactura">
+        <dc:Bounds x="1260" y="415" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_UnirAjuste_di" bpmnElement="Gateway_UnirAjuste" isMarkerVisible="true">
+        <dc:Bounds x="1435" y="430" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1405" y="484" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_NotificarRespuesta_di" bpmnElement="Activity_NotificarRespuesta">
+        <dc:Bounds x="1560" y="595" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_EsperarRecurso_di" bpmnElement="Gateway_EsperarRecurso">
+        <dc:Bounds x="1735" y="610" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1705" y="664" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_RecursoPresentado_di" bpmnElement="Event_RecursoPresentado">
+        <dc:Bounds x="1892" y="257" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1855" y="297" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_TerminoRecursoVencido_di" bpmnElement="Event_TerminoRecursoVencido">
+        <dc:Bounds x="1892" y="617" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1855" y="657" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_PqrsCerrada_di" bpmnElement="End_PqrsCerrada">
+        <dc:Bounds x="2042" y="617" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2005" y="657" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ResolverRecurso_di" bpmnElement="Activity_ResolverRecurso">
+        <dc:Bounds x="2010" y="415" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_DecisionRecurso_di" bpmnElement="Gateway_DecisionRecurso" isMarkerVisible="true">
+        <dc:Bounds x="2185" y="430" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2155" y="484" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_RemitirExpedienteSspd_di" bpmnElement="Event_RemitirExpedienteSspd">
+        <dc:Bounds x="2342" y="617" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2305" y="657" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_ExpedienteRemitido_di" bpmnElement="End_ExpedienteRemitido">
+        <dc:Bounds x="2492" y="617" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2455" y="657" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_RecursoAFavor_di" bpmnElement="End_RecursoAFavor">
+        <dc:Bounds x="2342" y="437" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2305" y="477" width="110" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_TimerPqrs_di" bpmnElement="TextAnnotation_TimerPqrs">
+        <dc:Bounds x="615" y="505" width="150" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_PqrsARadicar_di" bpmnElement="Flow_PqrsARadicar">
+        <di:waypoint x="278" y="275" />
+        <di:waypoint x="319" y="275" />
+        <di:waypoint x="319" y="635" />
+        <di:waypoint x="360" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RadicarAClasificar_di" bpmnElement="Flow_RadicarAClasificar">
+        <di:waypoint x="460" y="635" />
+        <di:waypoint x="510" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ClasificarARuta_di" bpmnElement="Flow_ClasificarARuta">
+        <di:waypoint x="610" y="635" />
+        <di:waypoint x="685" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RutaPrimerContacto_di" bpmnElement="Flow_RutaPrimerContacto">
+        <di:waypoint x="710" y="610" />
+        <di:waypoint x="710" y="275" />
+        <di:waypoint x="810" y="275" />
+        <bpmndi:BPMNLabel><dc:Bounds x="715" y="436" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RutaAnalisis_di" bpmnElement="Flow_RutaAnalisis">
+        <di:waypoint x="735" y="635" />
+        <di:waypoint x="755" y="635" />
+        <di:waypoint x="755" y="455" />
+        <di:waypoint x="810" y="455" />
+        <bpmndi:BPMNLabel><dc:Bounds x="741" y="615" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AlertaAEnviar_di" bpmnElement="Flow_AlertaAEnviar">
+        <di:waypoint x="888" y="513" />
+        <di:waypoint x="888" y="635" />
+        <di:waypoint x="960" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AlertaAFin_di" bpmnElement="Flow_AlertaAFin">
+        <di:waypoint x="1060" y="635" />
+        <di:waypoint x="1142" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PrimerContactoAUnir_di" bpmnElement="Flow_PrimerContactoAUnir">
+        <di:waypoint x="910" y="275" />
+        <di:waypoint x="1010" y="275" />
+        <di:waypoint x="1010" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AnalisisAUnir_di" bpmnElement="Flow_AnalisisAUnir">
+        <di:waypoint x="910" y="455" />
+        <di:waypoint x="985" y="455" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UnirAProcedeAjuste_di" bpmnElement="Flow_UnirAProcedeAjuste">
+        <di:waypoint x="1035" y="455" />
+        <di:waypoint x="1135" y="455" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AjusteSi_di" bpmnElement="Flow_AjusteSi">
+        <di:waypoint x="1185" y="455" />
+        <di:waypoint x="1260" y="455" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1191" y="435" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AjusteNo_di" bpmnElement="Flow_AjusteNo">
+        <di:waypoint x="1160" y="480" />
+        <di:waypoint x="1160" y="527" />
+        <di:waypoint x="1460" y="527" />
+        <di:waypoint x="1460" y="480" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1165" y="496" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AjustarAUnir_di" bpmnElement="Flow_AjustarAUnir">
+        <di:waypoint x="1360" y="455" />
+        <di:waypoint x="1435" y="455" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UnirANotificar_di" bpmnElement="Flow_UnirANotificar">
+        <di:waypoint x="1485" y="455" />
+        <di:waypoint x="1515" y="455" />
+        <di:waypoint x="1515" y="635" />
+        <di:waypoint x="1560" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NotificarAEsperar_di" bpmnElement="Flow_NotificarAEsperar">
+        <di:waypoint x="1660" y="635" />
+        <di:waypoint x="1735" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EsperarARecurso_di" bpmnElement="Flow_EsperarARecurso">
+        <di:waypoint x="1760" y="610" />
+        <di:waypoint x="1760" y="275" />
+        <di:waypoint x="1892" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EsperarATermino_di" bpmnElement="Flow_EsperarATermino">
+        <di:waypoint x="1785" y="635" />
+        <di:waypoint x="1892" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TerminoACerrar_di" bpmnElement="Flow_TerminoACerrar">
+        <di:waypoint x="1928" y="635" />
+        <di:waypoint x="2042" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RecursoAResolver_di" bpmnElement="Flow_RecursoAResolver">
+        <di:waypoint x="1928" y="275" />
+        <di:waypoint x="1969" y="275" />
+        <di:waypoint x="1969" y="455" />
+        <di:waypoint x="2010" y="455" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ResolverADecision_di" bpmnElement="Flow_ResolverADecision">
+        <di:waypoint x="2110" y="455" />
+        <di:waypoint x="2185" y="455" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DecisionConfirmada_di" bpmnElement="Flow_DecisionConfirmada">
+        <di:waypoint x="2210" y="480" />
+        <di:waypoint x="2210" y="635" />
+        <di:waypoint x="2342" y="635" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2215" y="550" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DecisionRevocada_di" bpmnElement="Flow_DecisionRevocada">
+        <di:waypoint x="2235" y="455" />
+        <di:waypoint x="2342" y="455" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2241" y="435" width="80" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RemitirAFin_di" bpmnElement="Flow_RemitirAFin">
+        <di:waypoint x="2378" y="635" />
+        <di:waypoint x="2492" y="635" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_TextAnnotation_TimerPqrs_di" bpmnElement="Association_TextAnnotation_TimerPqrs">
+        <di:waypoint x="860" y="495" />
+        <di:waypoint x="615" y="505" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_RespuestaPqrs_di" bpmnElement="MessageFlow_RespuestaPqrs">
+        <di:waypoint x="1610" y="595" />
+        <di:waypoint x="1610" y="140" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1615" y="360" width="90" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_RecursoReposicion_di" bpmnElement="MessageFlow_RecursoReposicion">
+        <di:waypoint x="1910" y="140" />
+        <di:waypoint x="1910" y="257" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1915" y="192" width="90" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_RemisionSspd_di" bpmnElement="MessageFlow_RemisionSspd">
+        <di:waypoint x="2360" y="653" />
+        <di:waypoint x="2360" y="770" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2365" y="704" width="90" height="14" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

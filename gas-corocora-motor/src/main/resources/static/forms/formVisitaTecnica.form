@@ -1,0 +1,90 @@
+{
+  "components": [
+    {
+      "text": "# Visita técnica de viabilidad",
+      "type": "text",
+      "layout": {
+        "row": "Row_formVisitaTecnica_01",
+        "columns": null
+      },
+      "id": "Field_formVisitaTecnica_01"
+    },
+    {
+      "label": "Número de solicitud",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formVisitaTecnica_02",
+        "columns": null
+      },
+      "id": "Field_formVisitaTecnica_02",
+      "key": "numeroSolicitud",
+      "disabled": true
+    },
+    {
+      "label": "Dirección del predio",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formVisitaTecnica_03",
+        "columns": null
+      },
+      "id": "Field_formVisitaTecnica_03",
+      "key": "direccionPredio",
+      "disabled": true
+    },
+    {
+      "label": "Tipo de predio",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_formVisitaTecnica_04",
+        "columns": null
+      },
+      "id": "Field_formVisitaTecnica_04",
+      "key": "tipoPredio",
+      "disabled": true
+    },
+    {
+      "label": "Distancia a la red de distribución (m)",
+      "type": "number",
+      "layout": {
+        "row": "Row_formVisitaTecnica_05",
+        "columns": null
+      },
+      "id": "Field_formVisitaTecnica_05",
+      "key": "distanciaRedMetros",
+      "validate": {
+        "required": true,
+        "min": 0
+      }
+    },
+    {
+      "label": "La red del sector tiene capacidad suficiente",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_formVisitaTecnica_06",
+        "columns": null
+      },
+      "id": "Field_formVisitaTecnica_06",
+      "key": "capacidadRedSuficiente",
+      "defaultValue": false
+    },
+    {
+      "label": "Observaciones de la visita",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_formVisitaTecnica_07",
+        "columns": null
+      },
+      "id": "Field_formVisitaTecnica_07",
+      "key": "observacionesVisita"
+    }
+  ],
+  "type": "default",
+  "id": "formVisitaTecnica",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.28.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.21.0",
+  "schemaVersion": 8
+}
